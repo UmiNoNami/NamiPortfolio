@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  /* Nudges every rem-based type size (and spacing) up slightly, site-wide. */
+  font-size: 106.25%;
+}
+
+body {
+  background-color: #e7e4de;
+  color: #16233f;
+}
+
+::selection {
+  background-color: #111111;
+  color: #f3f2ee;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f3f2ee;
+}
+::-webkit-scrollbar-thumb {
+  background: #111111;
+  border: 2px solid #f3f2ee;
+}
+
+.underline-grow {
+  transform-origin: left;
+}
+
+/* halftone dot texture, used as a background wash behind window panels */
+.halftone {
+  background-image: radial-gradient(rgba(17, 17, 17, 0.35) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.halftone-lg {
+  background-image: radial-gradient(rgba(17, 17, 17, 0.28) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+/* repeating hash-line pattern used in window title bars, either side of the label */
+.hash-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #111111 0px,
+    #111111 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+/* crisp, non-blurry scaling for small pixel-style SVG icons */
+.pixelated {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+
+/* Classic gray Windows desktop backdrop with a faint dot grid. */
+.win-desktop {
+  background-color: #c0c0c0;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Classic Windows 95/98 3D bevel — raised ("outset") and pressed ("inset").
+   Two-tone layered inset shadows, no extra DOM elements needed. */
+.win-outset {
+  box-shadow:
+    inset -1px -1px 0 0 #0a0a0a,
+    inset 1px 1px 0 0 #ffffff,
+    inset -2px -2px 0 0 #808080,
+    inset 2px 2px 0 0 #dfdfdf;
+}
+
+.win-inset {
+  box-shadow:
+    inset 1px 1px 0 0 #0a0a0a,
+    inset -1px -1px 0 0 #ffffff,
+    inset 2px 2px 0 0 #808080,
+    inset -2px -2px 0 0 #dfdfdf;
+}
+
+/* Thin single-tone version for small controls (title bar buttons). */
+.win-outset-sm {
+  box-shadow:
+    inset -1px -1px 0 0 #0a0a0a,
+    inset 1px 1px 0 0 #ffffff;
+}
+
+.win-inset-sm {
+  box-shadow:
+    inset 1px 1px 0 0 #0a0a0a,
+    inset -1px -1px 0 0 #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
