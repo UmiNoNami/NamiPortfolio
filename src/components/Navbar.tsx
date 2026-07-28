@@ -1,12 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { playClick } from "@/lib/sound";
 import { EASE_SMOOTH, SPRING_SNAPPY } from "@/lib/motion";
 import { useAboutModal } from "@/lib/aboutModal";
 import { useResumeModal } from "@/lib/resumeModal";
 import { useWindowManager } from "@/lib/windowManager";
 import ThemeToggle from "./ThemeToggle";
+import { CloseIcon, MenuIcon } from "./ModernIcons";
 
 const linkClass =
   "group relative py-1 transition-colors hover:text-navy dark:hover:text-cream";
@@ -17,6 +19,7 @@ export default function Navbar() {
   const { open: openAbout } = useAboutModal();
   const { open: openResume } = useResumeModal();
   const { open: openPlayground } = useWindowManager();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <motion.nav
@@ -75,6 +78,70 @@ export default function Navbar() {
           Playground
           <span className={underlineClass} />
         </button>
+      </div>
+
+      {/* Mobile menu: the same three actions as the desktop nav, since they
+          were disappearing entirely below md with no fallback. */}
+      <div className="relative md:hidden">
+        <motion.button
+          type="button"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          onClick={() => {
+            playClick();
+            setMenuOpen((v) => !v);
+          }}
+          whileTap={{ scale: 0.9 }}
+          transition={SPRING_SNAPPY}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-navy dark:text-cream"
+        >
+          {menuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+        </motion.button>
+
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.96 }}
+              transition={SPRING_SNAPPY}
+              className="absolute right-0 top-12 z-[60] flex w-44 flex-col gap-1 rounded-2xl border border-navy/10 bg-cream p-2 font-sans text-[15px] font-medium text-navy shadow-lg dark:border-cream/10 dark:bg-ink dark:text-cream"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  setMenuOpen(false);
+                  openAbout();
+                }}
+                className="rounded-xl px-3 py-2 text-left transition-colors hover:bg-navy/5 dark:hover:bg-cream/10"
+              >
+                About
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  setMenuOpen(false);
+                  openResume();
+                }}
+                className="rounded-xl px-3 py-2 text-left transition-colors hover:bg-navy/5 dark:hover:bg-cream/10"
+              >
+                Resume
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  setMenuOpen(false);
+                  openPlayground("playground");
+                }}
+                className="rounded-xl px-3 py-2 text-left transition-colors hover:bg-navy/5 dark:hover:bg-cream/10"
+              >
+                Playground
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <ThemeToggle />

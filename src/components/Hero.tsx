@@ -194,8 +194,76 @@ export default function Hero() {
 
         {/* ---------------- CENTER ---------------- */}
         <motion.div {...fadeUp(0.15)} className="flex flex-col items-center">
+          {/* Mobile-only: a simple stacked layout. The desktop version below
+              overlaps the illustration with absolutely-positioned text tuned
+              for a ~560px-wide card — at phone widths that math no longer
+              holds and everything collides, so under 640px we render the
+              same content flowing normally instead of layered. */}
+          <div className="w-full max-w-[380px] sm:hidden">
+            <div className="relative h-[260px] w-full rounded-[28px] bg-brand-orange">
+              {/* Illustration overflows the card's bottom edge on purpose,
+                  same trick as the desktop version — keeps the character
+                  full size while "Design" / "Code" flank the legs in the
+                  space that opens up below the card, instead of leaving the
+                  card itself looking empty. */}
+              <motion.div
+                className="pointer-events-none absolute inset-x-[17%] top-1 z-10 h-[300px]"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+              >
+                <Image
+                  src="/avatar-nami.png"
+                  alt="Illustration of Nami"
+                  fill
+                  sizes="70vw"
+                  className="object-contain object-bottom"
+                  priority
+                />
+              </motion.div>
+
+              <span className="absolute bottom-3 left-3 z-20 font-serif text-xl italic text-navy">
+                Design
+              </span>
+              <span className="absolute bottom-3 right-3 z-20 font-sans text-xl font-extrabold text-navy">
+                Code
+              </span>
+            </div>
+
+            <div className="mt-10 grid grid-cols-2 gap-4 text-center">
+              <div>
+                <h3 className="font-sans text-sm font-semibold text-navy dark:text-cream">UI/UX Design</h3>
+                <p className="mt-1 font-sans text-xs leading-relaxed text-navy/70 dark:text-cream/70">
+                  Thoughtful interfaces shaped around real people.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-sans text-sm font-semibold text-navy dark:text-cream">Front-End</h3>
+                <p className="mt-1 font-sans text-xs leading-relaxed text-navy/70 dark:text-cream/70">
+                  Playful ideas built into responsive experiences.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-3">
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={s.label}
+                  onClick={() => playClick()}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full shadow-md ${s.bg} ${s.fg}`}
+                >
+                  <s.icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Tablet/desktop: original overlapping art-card layout, unchanged. */}
           <div
-            className="relative w-full max-w-[560px]"
+            className="relative hidden w-full max-w-[560px] sm:block"
             onMouseMove={handleArtMouseMove}
             onMouseLeave={handleArtMouseLeave}
           >
@@ -391,9 +459,9 @@ export default function Hero() {
         </motion.div>
 
         {/* ---------------- RIGHT ---------------- */}
-        <motion.div {...fadeUp(0.3)} className="flex flex-col gap-4">
+        <motion.div {...fadeUp(0.3)} className="flex flex-col items-center gap-4 lg:items-stretch">
           <div id="work">
-            <WorksWidget className="lg:ml-auto" />
+            <WorksWidget className="mx-auto lg:mx-0 lg:ml-auto" />
           </div>
         </motion.div>
       </div>
