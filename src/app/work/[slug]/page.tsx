@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { projects, getProject } from "@/data/projects";
@@ -8,9 +9,10 @@ import Footer from "@/components/Footer";
 import BrowserFrame from "@/components/mockups/BrowserFrame";
 import PhoneFrame from "@/components/mockups/PhoneFrame";
 import MockupPlaceholder from "@/components/mockups/MockupPlaceholder";
-import MobileScreensShowcase from "@/components/MobileScreensShowcase";
+import PlutoCaseStudy from "@/components/pluto/PlutoCaseStudy";
 import Gear4MusicShowcase from "@/components/gear4music/Gear4MusicShowcase";
 import Gear4MusicHeroPreview from "@/components/gear4music/HeroPreview";
+import KnockKnockCaseStudy from "@/components/knockknock/KnockKnockCaseStudy";
 import { ArrowRightIcon, GearIcon, LockIcon, OrbitIcon } from "@/components/ModernIcons";
 import { getProjectDisplay } from "@/lib/projectDisplay";
 import ProjectIconChip from "@/components/ProjectIconChip";
@@ -20,12 +22,25 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const project = getProject(params.slug);
+  if (!project) return {};
+  const title = `${project.title} — ${project.category}`;
+  return {
+    title,
+    description: project.tagline,
+    alternates: { canonical: `/work/${project.slug}` },
+    openGraph: { title, description: project.tagline, url: `/work/${project.slug}` },
+    twitter: { title, description: project.tagline },
+  };
+}
+
 // Same icon/accent-color pairing as the Works widget on the homepage, so a
 // project carries its identity through from the list into its own page.
 const DISPLAY: Record<string, { Icon: typeof OrbitIcon; bg: string }> = {
   pluto: { Icon: OrbitIcon, bg: "bg-brand-orange" },
   gear4music: { Icon: GearIcon, bg: "bg-navy-soft" },
-  knokknok: { Icon: LockIcon, bg: "bg-brand-yellow" },
+  knockknock: { Icon: LockIcon, bg: "bg-brand-yellow" },
 };
 
 function MetaColumn({ label, value }: { label: string; value: string }) {
@@ -58,7 +73,10 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
   const more = projects.filter((p) => p.slug !== project.slug).slice(0, 2);
 
   return (
-    <main className="min-h-screen bg-canvas px-3 py-3 transition-colors duration-300 dark:bg-midnight sm:px-6 sm:py-6">
+    <main
+      id="main-content"
+      className="min-h-screen bg-canvas px-3 py-3 transition-colors duration-300 dark:bg-midnight sm:px-6 sm:py-6"
+    >
       {project.introWord && <ProjectPageIntro word={project.introWord} subtitle={project.introSubtitle ?? ""} />}
       <div className="mx-auto max-w-[1600px] rounded-[32px] bg-cream px-6 py-6 transition-colors duration-300 dark:bg-midnight-card sm:px-10 sm:py-8 lg:px-14">
         <Navbar />
@@ -108,7 +126,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
 
             <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4">
               <MetaColumn label="Role" value={project.role} />
-              <MetaColumn label="Category" value={project.tags[0] ?? "—"} />
+              <MetaColumn label="Category" value={project.category} />
               <MetaColumn label="Year" value={project.year} />
             </div>
           </RevealOnScroll>
@@ -129,11 +147,24 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               </div>
             </RevealOnScroll>
           ) : project.slug === "gear4music" ? (
-            // Recreated hero — the real case study's dark-first headline and
-            // stat grid, rebuilt directly rather than a generic mockup.
+            // Recreated hero — the real case study's dark-first headline,
+            // rebuilt directly rather than a generic mockup.
             <RevealOnScroll delay={0.1} className="mt-12">
               <div className="overflow-hidden rounded-[28px] shadow-[0_2px_8px_rgba(17,17,17,0.06),0_32px_64px_-24px_rgba(17,17,17,0.28)]">
                 <Gear4MusicHeroPreview />
+              </div>
+            </RevealOnScroll>
+          ) : project.slug === "knockknock" ? (
+            // Real product screenshot — same plain-frame treatment as Pluto.
+            <RevealOnScroll delay={0.1} className="mt-12">
+              <div className="group relative mx-auto aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-[28px] shadow-[0_2px_8px_rgba(17,17,17,0.06),0_32px_64px_-24px_rgba(17,17,17,0.28)] transition-shadow duration-300 hover:shadow-[0_2px_8px_rgba(17,17,17,0.08),0_40px_80px_-24px_rgba(17,17,17,0.32)]">
+                <Image
+                  src="/knokknok1.png"
+                  alt="KnockKnock app preview"
+                  fill
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                  priority
+                />
               </div>
             </RevealOnScroll>
           ) : (
@@ -152,52 +183,58 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             </RevealOnScroll>
           )}
 
-          {/* ---------------- OVERVIEW + PROBLEM ---------------- */}
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            <RevealOnScroll>
-              <SectionCard title="Overview">{project.overview}</SectionCard>
-            </RevealOnScroll>
-            <RevealOnScroll delay={0.05}>
-              <SectionCard title="The Problem">{project.problem}</SectionCard>
-            </RevealOnScroll>
-          </div>
-
-          {/* ---------------- SCREEN GALLERY ---------------- */}
-          <RevealOnScroll delay={0.05} className="mt-16">
-            <span className="mb-3 block h-1 w-8 rounded-full bg-navy/15 dark:bg-cream/15" />
-            <h2 className="font-sans text-lg font-semibold text-navy dark:text-cream">A look inside</h2>
-          </RevealOnScroll>
-
+          {/* ---------------- CASE STUDY BODY ---------------- */}
           {project.slug === "pluto" ? (
-            <div className="mt-8">
-              <MobileScreensShowcase steps={project.process} Icon={Icon} bg={meta.bg} />
+            <div className="mt-12">
+              <PlutoCaseStudy />
             </div>
           ) : project.slug === "gear4music" ? (
-            <div className="mt-8">
+            <div className="mt-12">
               <Gear4MusicShowcase />
             </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
-              {project.process.map((step, i) => (
-                <RevealOnScroll key={step.step} delay={0.05 * i}>
-                  <PhoneFrame>
-                    <MockupPlaceholder Icon={Icon} bg={meta.bg} />
-                  </PhoneFrame>
-                  <div className="mt-3 text-center">
-                    <p className="font-sans text-sm font-semibold text-navy dark:text-cream">{step.step}</p>
-                    <p className="mt-1 font-sans text-xs leading-relaxed text-navy/60 dark:text-cream/60">
-                      {step.detail}
-                    </p>
-                  </div>
-                </RevealOnScroll>
-              ))}
+          ) : project.slug === "knockknock" ? (
+            <div className="mt-12">
+              <KnockKnockCaseStudy />
             </div>
-          )}
+          ) : (
+            <>
+              {/* Generic fallback template — kept for any future project
+                  without its own dedicated case-study component. */}
+              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+                <RevealOnScroll>
+                  <SectionCard title="Overview">{project.overview}</SectionCard>
+                </RevealOnScroll>
+                <RevealOnScroll delay={0.05}>
+                  <SectionCard title="The Problem">{project.problem}</SectionCard>
+                </RevealOnScroll>
+              </div>
 
-          {/* ---------------- OUTCOME ---------------- */}
-          <RevealOnScroll delay={0.1} className="mt-8">
-            <SectionCard title="Outcome">{project.outcome}</SectionCard>
-          </RevealOnScroll>
+              <RevealOnScroll delay={0.05} className="mt-16">
+                <span className="mb-3 block h-1 w-8 rounded-full bg-navy/15 dark:bg-cream/15" />
+                <h2 className="font-sans text-lg font-semibold text-navy dark:text-cream">A look inside</h2>
+              </RevealOnScroll>
+
+              <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
+                {project.process.map((step, i) => (
+                  <RevealOnScroll key={step.step} delay={0.05 * i}>
+                    <PhoneFrame>
+                      <MockupPlaceholder Icon={Icon} bg={meta.bg} />
+                    </PhoneFrame>
+                    <div className="mt-3 text-center">
+                      <p className="font-sans text-sm font-semibold text-navy dark:text-cream">{step.step}</p>
+                      <p className="mt-1 font-sans text-xs leading-relaxed text-navy/60 dark:text-cream/60">
+                        {step.detail}
+                      </p>
+                    </div>
+                  </RevealOnScroll>
+                ))}
+              </div>
+
+              <RevealOnScroll delay={0.1} className="mt-8">
+                <SectionCard title="Outcome">{project.outcome}</SectionCard>
+              </RevealOnScroll>
+            </>
+          )}
 
           {/* ---------------- MORE PROJECTS ---------------- */}
           <RevealOnScroll delay={0.15} className="mt-14">

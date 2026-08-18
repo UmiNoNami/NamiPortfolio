@@ -4,11 +4,13 @@ import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { playClick } from "@/lib/sound";
 import { SPRING_SOFT, SPRING_SNAPPY } from "@/lib/motion";
-import { ChatIcon, ArrowRightIcon } from "./ModernIcons";
+import { useContactChat } from "@/lib/contactChat";
+import { ChatIcon, ArrowRightIcon, LinkedInIcon } from "./ModernIcons";
 
 const MY_EMAIL = "naransuvd57@gmail.com";
 const MY_PHONE = "+353 89 200 1759";
 const MY_PHONE_TEL = "+353892001759";
+const MY_LINKEDIN = "https://www.linkedin.com/in/naransuvd-enkhjargal-8084271a9/";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TOPICS = [
@@ -55,7 +57,7 @@ function UserBubble({ children }: { children: React.ReactNode }) {
 }
 
 export default function ContactChat() {
-  const [open, setOpen] = useState(false);
+  const { isOpen: open, toggle: toggleContext } = useContactChat();
   const [phase, setPhase] = useState<Phase>("topic");
   const [topic, setTopic] = useState<TopicId | null>(null);
   const [message, setMessage] = useState("");
@@ -66,7 +68,7 @@ export default function ContactChat() {
 
   const toggle = () => {
     playClick();
-    setOpen((v) => !v);
+    toggleContext();
   };
 
   const pickTopic = (id: TopicId) => {
@@ -137,13 +139,16 @@ export default function ContactChat() {
                 <ChatIcon className="h-4 w-4" />
               </span>
               <div>
-                <p className="font-sans text-sm font-semibold text-navy dark:text-cream">Say hi</p>
+                <p className="font-sans text-sm font-semibold text-navy dark:text-cream">Say hello</p>
                 <p className="font-sans text-[11px] text-navy/50 dark:text-cream/50">Usually replies within a day</p>
               </div>
             </div>
 
             <div className="flex max-h-[360px] flex-col gap-2.5 overflow-y-auto px-4 py-4">
-              <BotBubble>Hey, I&apos;m Nami 👋 What brings you here?</BotBubble>
+              <BotBubble>
+                Have a project, opportunity or good coffee recommendation? I&apos;m open to UI/UX, product
+                design and front-end opportunities — tell me a bit about it and I&apos;ll get back to you.
+              </BotBubble>
 
               {topicMeta && <UserBubble>{topicMeta.label}</UserBubble>}
               {topicMeta && <BotBubble>{topicMeta.reply}</BotBubble>}
@@ -178,7 +183,7 @@ export default function ContactChat() {
                       whileHover={{ x: 2 }}
                       whileTap={{ scale: 0.97 }}
                       transition={SPRING_SNAPPY}
-                      className="rounded-2xl border border-navy/15 bg-white px-3.5 py-2.5 text-left font-sans text-[13px] text-navy dark:border-cream/15 dark:bg-white/5 dark:text-cream"
+                      className="min-h-[44px] rounded-2xl border border-navy/15 bg-white px-3.5 py-2.5 text-left font-sans text-[13px] text-navy outline-none focus-visible:ring-2 focus-visible:ring-navy/40 dark:border-cream/15 dark:bg-white/5 dark:text-cream dark:focus-visible:ring-cream/40"
                     >
                       {t.label}
                     </motion.button>
@@ -278,6 +283,17 @@ export default function ContactChat() {
                     className="underline decoration-navy/20 underline-offset-2 hover:text-navy/60 dark:decoration-cream/20 dark:hover:text-cream/60"
                   >
                     {MY_PHONE}
+                  </a>{" "}
+                  ·{" "}
+                  <a
+                    href={MY_LINKEDIN}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => playClick()}
+                    className="inline-flex items-center gap-1 underline decoration-navy/20 underline-offset-2 hover:text-navy/60 dark:decoration-cream/20 dark:hover:text-cream/60"
+                  >
+                    <LinkedInIcon className="h-3 w-3" />
+                    LinkedIn
                   </a>
                 </p>
               )}
@@ -289,11 +305,11 @@ export default function ContactChat() {
       <motion.button
         type="button"
         onClick={toggle}
-        aria-label={open ? "Close chat" : "Say hi"}
+        aria-label={open ? "Close chat" : "Say hello"}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.92 }}
         transition={SPRING_SNAPPY}
-        className="fixed bottom-5 right-5 z-[140] flex h-14 w-14 items-center justify-center rounded-full bg-navy text-cream shadow-lg dark:bg-cream dark:text-navy sm:right-6"
+        className="fixed bottom-5 right-5 z-[140] flex h-14 w-14 items-center justify-center rounded-full bg-navy text-cream shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-navy/50 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:bg-cream dark:text-navy dark:focus-visible:ring-cream/50 dark:focus-visible:ring-offset-midnight sm:right-6"
       >
         {!open && (
           <motion.span

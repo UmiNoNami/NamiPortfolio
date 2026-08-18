@@ -1,6 +1,9 @@
 export type Project = {
   slug: string;
   title: string;
+  /** Short "Category · Type" line shown under the title on cards and the
+   * case-study header — e.g. "Product Design · Mobile App". */
+  category: string;
   tagline: string;
   role: string;
   year: string;
@@ -12,8 +15,16 @@ export type Project = {
   problem: string;
   process: { step: string; detail: string }[];
   outcome: string;
-  /** Optional — shows a "Live site" badge on the project page when set. */
+  /** Optional — shows a "Live site" badge on the project page when set, and
+   * makes the homepage card/chips link straight out to it instead of the
+   * internal case-study page. Only used for projects with no case study to
+   * visit first. */
   liveUrl?: string;
+  /** The live product's own URL, shown as a CTA *inside* the case-study page
+   * (unlike liveUrl, this never bypasses the case study from the homepage
+   * card — used for projects like KnockKnock where the card should always
+   * lead to the internal write-up first). */
+  productUrl?: string;
   /** Image shown in the floating hover preview on the homepage Works list. */
   previewImage: string;
   /** How the preview image fills its frame — defaults to "cover". */
@@ -29,24 +40,26 @@ export const projects: Project[] = [
   {
     slug: "pluto",
     title: "Pluto",
-    tagline: "A student portal app that keeps classes, deadlines, and coursework in one place.",
+    category: "Product Design · Mobile App",
+    tagline:
+      "A student portal concept designed to bring classes, deadlines, coursework and daily tasks into one clear mobile experience.",
     role: "UI/UX Designer",
     year: "2026",
-    tags: ["Mobile App", "UI/UX Design", "Student Life"],
+    tags: ["Product Design", "Mobile App", "UI/UX Design"],
     accent: "from-ink/20",
     platform: "mobile",
     previewImage: "/cover.png",
     introWord: "PLUTO",
     introSubtitle: "Student Portal",
     overview:
-      "Pluto is a student portal app that brings classes, calendar, coursework, and to-dos into one place, with an AI study companion for quick answers about schedules and deadlines. I led the end-to-end UI/UX design — research, wireframes, the visual design system, and a tested high-fidelity prototype.",
+      "Pluto is a student portal concept that brings classes, deadlines, coursework and daily tasks into one mobile experience. The project explores how students could understand what needs their attention without moving between several disconnected tools.",
     problem:
-      "Student life runs across too many disconnected tools — a timetable app, the university LMS, a generic to-do list, group chats for deadlines. Nothing surfaces what actually matters today: what's due, what's next, and how a course is going. That gap is where things get missed.",
+      "Student information is often distributed across timetables, learning portals, emails, group chats and personal to-do lists. Moving between these tools makes it harder to understand what is happening today, what is due next and which tasks require immediate attention.",
     process: [
       {
-        step: "Research",
+        step: "Exploration",
         detail:
-          "Mapped the everyday tools students juggle — timetables, the LMS, group chats, generic to-do apps — to find where deadlines and schedule info were falling through the cracks, and where a single home base could help most.",
+          "I reviewed the common tools students use to manage classes and coursework. This helped me identify an opportunity to connect schedule information, deadlines and personal tasks within one consistent experience.",
       },
       {
         step: "Wireframes",
@@ -54,95 +67,105 @@ export const projects: Project[] = [
           "Sketched the core flows first at low fidelity: the auth flow, the five main tabs (Home, Calendar, Courses, To-Do, Profile), and the course drill-down — 8 screens in total — before touching color or type.",
       },
       {
-        step: "UI & Design System",
+        step: "Design System",
         detail:
           "Built the visual language on Plus Jakarta Sans for display type and DM Sans for body/UI text, a warm yellow-and-ink palette with semantic colors for exam, assignment, class, and completed states, and a reusable component set — buttons, cards, tags, nav bar — so every screen stayed consistent.",
       },
       {
-        step: "Prototype & Test",
+        step: "Final Experience",
         detail:
-          "Took the system into high fidelity across all 8 screens and iterated on navigation, task flows, and color-coding for clarity — tightening spacing, touch targets, and copy with each pass.",
+          "Took the system into high fidelity across all 8 screens — the connected student dashboard, calendar, course area, task manager and focused AI assistant.",
       },
     ],
     outcome:
-      "A complete design system and working high-fidelity prototype spanning onboarding, home dashboard, calendar, courses, to-dos, profile, and the Pluto AI assistant — ready to hand off for development.",
+      "The final concept includes a connected student dashboard, calendar, course area, task manager and focused AI assistant. The project strengthened my ability to organise a multi-feature product into a consistent mobile system.",
   },
   {
     slug: "gear4music",
-    title: "Gear4music.ie",
-    tagline: "Sound without compromise — a dark-first redesign of Ireland's largest online music retailer.",
-    role: "Lead UX / UI Designer",
+    title: "Gear4Music Redesign",
+    category: "UX/UI Redesign · E-commerce",
+    tagline:
+      "A conceptual redesign exploring how a large music catalogue could feel clearer, more focused and easier to navigate.",
+    role: "UX/UI Designer",
     year: "2024–25",
-    tags: ["Web Redesign", "UI/UX Design", "E-commerce"],
+    tags: ["UX/UI Redesign", "E-commerce", "Independent Concept"],
     accent: "from-ink/20",
     platform: "web",
     previewImage: "/gear.png",
     introWord: "GEAR4MUSIC",
-    introSubtitle: "Website Redesign",
+    introSubtitle: "Independent Redesign Concept",
     overview:
-      "A complete visual and UX redesign of Ireland's largest online music retailer — bringing clarity, confidence, and craft to a sprawling 250,000-product catalogue. I led research, information architecture, visual design, and a working prototype across an 8-week sprint.",
+      "An independent conceptual redesign exploring how Gear4Music's online shopping experience could feel clearer, more focused and more confident across desktop and mobile. This project was not commissioned by Gear4Music.",
     problem:
-      "The legacy site buried its catalogue behind competing banners, sidebar filters, and an unranked search — users abandoned the search step in 38% of sessions. Mobile was just the desktop layout squeezed smaller, with tap targets averaging 28px, well below the accessibility floor, and no consistent brand identity to build trust in a purchase.",
+      "Large e-commerce catalogues must support very different customers, from beginners exploring their first instrument to experienced musicians searching for a specific product. This concept focuses on reducing visual competition and creating a more structured route from discovery to checkout.",
     process: [
       {
-        step: "Research",
+        step: "Heuristic Review",
         detail:
-          "Ran five rounds of usability testing with 18 participants across skill levels and device types, surfacing recurring pain points — from information overload to missing trust and localisation signals for Irish shoppers.",
+          "Reviewed the legacy site against usability heuristics and competitor patterns to identify areas of opportunity — competing visual priorities, complex product discovery, inconsistent trust information and a compressed rather than redesigned mobile hierarchy.",
       },
       {
-        step: "Wireframes & IA",
+        step: "Information Architecture",
         detail:
-          "Rebuilt the navigation around four core screens — homepage, a browse-first search overlay, product detail, and a slide-out menu — cutting the top-level nav from 18 links down to 4 icons.",
+          "Rebuilt the navigation around four core mobile actions — home, search, basket and menu — and expanded search into a browse-first discovery tool.",
       },
       {
-        step: "Visual & Design System",
+        step: "Design System",
         detail:
-          "Built a dark-first palette (Obsidian, Burnt Sienna, Warm Amber) and a three-font type system — Big Shoulders Display, Figtree, DM Mono — plus a 12-component library covering every purchase-journey state.",
+          "Built a dark-first palette (Obsidian, Burnt Sienna, Warm Amber) and a three-font type system — Big Shoulders Display, Figtree, DM Mono — plus a component library covering navigation, product cards, status badges, buttons, search and checkout.",
       },
       {
-        step: "Prototype & Handoff",
+        step: "Final Solution",
         detail:
-          "Delivered a working React 18 + Tailwind + Motion prototype with live component demos and a documented design system, ready to hand off for development.",
+          "Delivered a working prototype covering the core shopping journey from product discovery through to order confirmation, with a running order summary visible at every checkout step.",
       },
     ],
     outcome:
-      "A projected page load speed drop from 4.8s to under 1.2s, mobile tap-target compliance up from 42% to 100%, and a usability task-completion rate that rose from 61% to 94% — all backed by a documented 12-component design system.",
+      "The final concept covers the main shopping journey from product discovery to order confirmation, backed by a reusable component system for navigation, product cards, status badges, buttons, search and checkout.",
   },
   {
-    slug: "knokknok",
-    title: "KnokKnok",
-    tagline: "A roommate-matching app connecting people to compatible homes and housemates.",
-    role: "Developer",
-    year: "[add year]",
-    tags: ["Mobile App", "Development", "Matching Product"],
+    slug: "knockknock",
+    title: "KnockKnock",
+    category: "Mobile Development · Collaboration",
+    tagline:
+      "A working roommate-matching application developed with React Native, Expo and Firebase from a UI/UX design created by Fernanda Fernandes.",
+    role: "Mobile App Developer",
+    year: "2025",
+    tags: ["Mobile Development", "Collaboration", "React Native"],
     accent: "from-ink/20",
     platform: "mobile",
-    liveUrl: "https://knokknokapp.com/",
+    productUrl: "https://knokknokapp.com/",
     previewImage: "/knokknok1.png",
+    introWord: "KNOCKKNOCK",
+    introSubtitle: "Roommate Matching App",
     overview:
-      "[Replace with 2–3 sentences: what KnokKnok does, who it's for, and what you built as the developer.]",
+      "KnockKnock is a roommate and accommodation-matching application created as a collaborative master's project. The UI/UX design was created by Fernanda Fernandes, while I was responsible for developing the application and connecting the experience to a working Firebase backend.",
     problem:
-      "[Replace with the problem — e.g. how hard it is to find compatible roommates/housing today.]",
+      "Finding compatible roommates and accommodation usually means juggling several disconnected listing sites and group chats, with no structured way to see who and what is actually compatible.",
     process: [
       {
         step: "Architecture",
-        detail: "[Add: the stack and structure you set up — React Native, backend, matching logic.]",
+        detail:
+          "Developed the application using React Native and Expo, built Firebase authentication, and structured the Firestore database to support separate Seeker and Provider experiences.",
       },
       {
         step: "Core Features",
-        detail: "[Add: matching algorithm, profiles, chat, listings — whatever you built.]",
+        detail:
+          "Implemented user profiles and accommodation listings, image uploading, swiping and matching functionality, and real-time conversations with image messaging.",
       },
       {
         step: "Design Collaboration",
-        detail: "[Add: how you worked with design/Figma to implement the UI faithfully.]",
+        detail:
+          "Translated the Figma designs created by Fernanda Fernandes into reusable React Native components and working interactions, communicating technical constraints while preserving the original visual direction.",
       },
       {
-        step: "Testing & Launch",
-        detail: "[Add: QA, TestFlight/Play beta, or launch details.]",
+        step: "Discovery & Safety",
+        detail:
+          "Added map-based accommodation discovery, plus reporting, hiding and account-management features.",
       },
     ],
     outcome:
-      "[Replace with results — app store status, user numbers, or lessons learned.]",
+      "The result was a functioning end-to-end mobile application rather than only a visual prototype. The project strengthened my ability to collaborate with a designer, translate interface designs into code and connect complex user flows to a real database.",
   },
 ];
 

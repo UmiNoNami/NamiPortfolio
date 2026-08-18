@@ -18,10 +18,10 @@ const SEMANTIC = [
   { name: "Completed", note: "Done items, success states", ...plutoSemantic.completed },
 ];
 
-export default function ColorSystem() {
+export default function ColorSystem({ index = "02" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="02" title="Color System" />
+      <SectionHeading index={index} title="Color System" />
 
       <p className="mt-6 font-dm text-xs font-semibold uppercase tracking-wider text-navy/40 dark:text-cream/40">
         Core Palette

@@ -4,52 +4,51 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { EASE_SMOOTH } from "@/lib/motion";
 
-// "Hello" in eight languages, each written in its own native script.
-const greetings = [
-  "Hello",
-  "Сайн байна уу", // Mongolian
-  "こんにちは", // Japanese
-  "안녕하세요", // Korean
-  "Hola", // Spanish
-  "Bonjour", // French
-  "Halo", // Indonesian
-  "你好", // Chinese
-];
+// "Hello" in four languages, each written in its own native script — kept
+// short deliberately: this used to cycle through eight words at 300ms each
+// (2.4s) plus a 700ms exit, well over 3s total. Now it's four words at
+// 150ms each (0.6s) plus a 300ms exit, landing under the ~0.8–1s ceiling.
+const greetings = ["Hello", "Сайн байна уу", "こんにちは", "你好"];
 
-const STEP_MS = 300;
-const EXIT_MS = 700;
+const STEP_MS = 150;
+const EXIT_MS = 300;
 const STORAGE_KEY = "nami-intro-seen";
 
 /**
- * A one-time welcome screen: cycles through "Hello" in eight languages
- * before fading out to reveal the site. Only plays once per browser
- * session (via sessionStorage) so repeat navigation doesn't replay it.
- *
- * Word swaps are instant (no exit-wait animation between them) — an
- * AnimatePresence mode="wait" + spring combo previously used here made
- * each word's exit block the next word's entrance, and since a fresh
- * setIndex() fired on a fixed timer regardless of whether that exit had
- * finished, several words got silently skipped. Rendering each word as a
- * plain keyed swap (old one unmounts immediately, new one only fades in)
- * removes that bottleneck entirely.
+ * A brief, one-time welcome screen: cycles through "Hello" in four languages
+ * before fading out to reveal the site. Only plays once per browser session
+ * (via sessionStorage) so repeat navigation doesn't replay it, and is
+ * skipped entirely for prefers-reduced-motion — it never delays access to
+ * the portfolio either way, since the whole thing resolves in under a
+ * second, well within what's needed to not feel like a loading gate.
  */
 export default function Preloader() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [index, setIndex] = useState(0);
   const [showText, setShowText] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    setMounted(true);
 
     // ?intro=1 forces it to replay even if this tab has already seen it —
     // handy for testing/demoing without opening a private window.
     const forceReplay = new URLSearchParams(window.location.search).has("intro");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (!forceReplay && sessionStorage.getItem(STORAGE_KEY)) {
-      setVisible(false);
+    if (reducedMotion) {
+      // Respect the preference outright — no flashing word cycle, no
+      // full-screen takeover, just mark it seen and get out of the way.
+      sessionStorage.setItem(STORAGE_KEY, "1");
       return;
     }
 
+    if (!forceReplay && sessionStorage.getItem(STORAGE_KEY)) {
+      return;
+    }
+
+    setVisible(true);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -57,8 +56,6 @@ export default function Preloader() {
     for (let i = 1; i < greetings.length; i++) {
       timers.push(setTimeout(() => setIndex(i), i * STEP_MS));
     }
-    // Hide the text the instant the last word's turn is up, then let the
-    // black panel slide up and off-screen on its own — no lingering text.
     timers.push(setTimeout(() => setShowText(false), greetings.length * STEP_MS));
     timers.push(
       setTimeout(() => {
@@ -74,7 +71,10 @@ export default function Preloader() {
     };
   }, []);
 
-  if (!visible) return null;
+  // Nothing rendered until we know (client-side) whether this should play —
+  // avoids a server/client mismatch and never blocks the homepage's own
+  // first paint since this is a purely additive overlay, not a gate.
+  if (!mounted || !visible) return null;
 
   return (
     <motion.div
@@ -90,7 +90,7 @@ export default function Preloader() {
           key={index}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.1, ease: "easeOut" }}
+          transition={{ duration: 0.08, ease: "easeOut" }}
           className="font-serif text-4xl italic text-paper sm:text-6xl"
         >
           {greetings[index]}

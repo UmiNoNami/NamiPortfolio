@@ -27,36 +27,41 @@ function ScreenFrame({ label, note, children }: { label: string; note: string; c
   );
 }
 
-const DECISIONS = [
-  {
-    title: "Nav Reduced To 4 Icons",
-    detail:
-      "Logo, Search, Basket, Menu. Eliminated exposed category mega-nav which competed with hero content and confused mobile users.",
-  },
-  {
-    title: "Search = Discovery",
-    detail:
-      "Redesigned search as a browse-first experience: show 8 illustrated category tiles first, drill to subcategories, then products. Reduces dead-end searches.",
-  },
-  {
-    title: "Zero-Chrome Basket",
-    detail:
-      "Cart state lives in an animated badge only. No sidebar drawer — fewer UI layers, less cognitive load. Confirmation via toast.",
-  },
-];
+const FLOW_STEPS = ["Homepage", "Category discovery", "Product listing", "Product details", "Basket", "Checkout", "Confirmation"];
 
-export default function WireframeScreens() {
+/**
+ * The core shopping flow, shown two ways: a concise text stepper first
+ * (so the route is legible at a glance), then four representative lo-fi
+ * screens from that route — homepage, browse-first search, product detail,
+ * and the trimmed-down mobile menu.
+ */
+export default function WireframeScreens({ index = "06" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="03" title="Lo-Fi to Hi-Fi" />
-      <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
-        Four key screens drive the entire purchase journey. Each was tested at low fidelity before visual design
-        began.
-      </p>
+      <SectionHeading index={index} title="Core Shopping Flow" />
+
+      <RevealOnScroll y={12} className="mt-5">
+        <div
+          className="flex flex-wrap items-center gap-x-2 gap-y-3 rounded-2xl border p-4 font-dm-mono text-[11px] uppercase tracking-wider"
+          style={{ borderColor: g4mColors.hairline, backgroundColor: g4mColors.charcoalSurface, color: g4mColors.subdued }}
+        >
+          {FLOW_STEPS.map((step, i) => (
+            <span key={step} className="flex items-center gap-2">
+              <span
+                className="rounded-full px-2.5 py-1"
+                style={{ backgroundColor: g4mColors.obsidian, color: g4mColors.warmWhite }}
+              >
+                {step}
+              </span>
+              {i < FLOW_STEPS.length - 1 && <span style={{ color: g4mColors.burntSienna }}>→</span>}
+            </span>
+          ))}
+        </div>
+      </RevealOnScroll>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <RevealOnScroll delay={0} y={16}>
-          <ScreenFrame label="Homepage" note="Auto-advancing hero, category grid, product rails, brand grid, footer">
+          <ScreenFrame label="Homepage" note="Hero, category entry points, product rails, footer">
             <div className="flex items-center justify-between">
               <Bar w="35%" h={8} />
               <div className="flex gap-1">
@@ -78,7 +83,7 @@ export default function WireframeScreens() {
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.06} y={16}>
-          <ScreenFrame label="Search Overlay" note="Full-screen with category browse, drill-down subcategory, then product grid">
+          <ScreenFrame label="Category Discovery" note="Browse-first search: categories, then subcategories, then products">
             <Bar w="90%" h={10} />
             <p className="mt-3 font-figtree text-[10px]" style={{ color: g4mColors.subdued }}>
               Browse Categories
@@ -94,7 +99,7 @@ export default function WireframeScreens() {
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.12} y={16}>
-          <ScreenFrame label="Product Detail" note="Hero image, price, specs, Add to Basket, delivery/returns trust strip">
+          <ScreenFrame label="Product Details" note="Price, specs, Add to Basket, delivery/returns trust strip">
             <div className="flex items-center justify-between">
               <Bar w="50%" h={8} />
               <Bar w="15%" h={8} />
@@ -112,29 +117,16 @@ export default function WireframeScreens() {
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.18} y={16}>
-          <ScreenFrame label="Slide Menu" note="Utility links — Support, Company, Legal — slide in from the left">
+          <ScreenFrame label="Basket → Checkout" note="Running order summary stays visible through every checkout step">
             <Bar w="55%" h={8} />
             <div className="mt-4 space-y-2.5">
-              {[85, 65, 70, 55, 60].map((w, k) => (
+              {[85, 65, 70, 55].map((w, k) => (
                 <Bar key={k} w={`${w}%`} h={5} />
               ))}
             </div>
             <div className="mt-3 h-2 w-14 rounded-full" style={{ backgroundColor: g4mColors.burntSienna }} />
           </ScreenFrame>
         </RevealOnScroll>
-      </div>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        {DECISIONS.map((d, i) => (
-          <RevealOnScroll key={d.title} delay={0.05 * i} y={14}>
-            <div className="border-l-2 pl-4" style={{ borderColor: g4mColors.burntSienna }}>
-              <p className="font-big-shoulders text-base font-bold uppercase tracking-tight text-white">{d.title}</p>
-              <p className="mt-1.5 font-figtree text-[13px] leading-relaxed" style={{ color: g4mColors.subdued }}>
-                {d.detail}
-              </p>
-            </div>
-          </RevealOnScroll>
-        ))}
       </div>
     </div>
   );

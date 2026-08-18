@@ -95,10 +95,10 @@ const PRODUCTS = [
   { brand: "Shure", name: "Shure SM7B", price: "€359", was: null, badge: "HOT", badgeBg: g4mColors.burntSienna, badgeText: "#fff", Icon: MicrophoneGlyph },
 ];
 
-export default function ComponentsShowcase() {
+export default function ComponentsShowcase({ index = "06" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="06" title="Building Blocks" />
+      <SectionHeading index={index} title="Building Blocks" />
       <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
         12 core components covering every interaction state in the purchase journey.
       </p>

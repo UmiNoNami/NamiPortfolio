@@ -25,7 +25,7 @@ export const PROJECT_DISPLAY: Record<string, ProjectDisplayMeta> = {
   gear4music: { name: "Gear4Music", Icon: GearIcon, bg: "bg-navy-soft", iconImage: "/gear-icon.png" },
   // KnockKnock's own logo mark (transparent background), shown with some
   // breathing room rather than cropped edge-to-edge like the other two.
-  knokknok: { name: "KnockKnock", Icon: LockIcon, bg: "bg-white", iconImage: "/knokknok.png", iconFit: "contain" },
+  knockknock: { name: "KnockKnock", Icon: LockIcon, bg: "bg-white", iconImage: "/knokknok.png", iconFit: "contain" },
 };
 
 export function getProjectDisplay(slug: string, fallbackName: string): ProjectDisplayMeta {

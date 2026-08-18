@@ -64,9 +64,9 @@ function ScrollingPage({
             lands exactly on the second copy's start, so the loop is seamless. */}
         <div className={`absolute inset-x-0 top-[38px] flex flex-col g4m-scroll-${uid}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={label} className="w-full" />
+          <img src={src} alt={label} className="w-full" loading="lazy" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" aria-hidden className="w-full" />
+          <img src={src} alt="" aria-hidden className="w-full" loading="lazy" />
         </div>
 
         <div
@@ -113,7 +113,7 @@ function CheckoutFilmstrip() {
           <div key={i} className="flex shrink-0 flex-col items-center gap-2 px-3">
             <div className="h-[260px] overflow-hidden rounded-lg border" style={{ borderColor: g4mColors.hairline }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={step.src} alt={step.label} className="h-[260px] w-auto" />
+              <img src={step.src} alt={step.label} className="h-[260px] w-auto" loading="lazy" />
             </div>
             <p className="font-dm-mono text-[11px] uppercase tracking-wider text-white">
               {String((i % CHECKOUT_STEPS.length) + 1).padStart(2, "0")} — {step.label}
@@ -236,10 +236,10 @@ function MockupCarousel() {
 
 // ---------------------------------------------------------------------------
 
-export default function RealScreens() {
+export default function RealScreens({ index = "08" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="07" title="The Finished Site" />
+      <SectionHeading index={index} title="Final Solution" />
       <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
         Real, exported screens from the finished build, running end to end rather than sitting still.
       </p>

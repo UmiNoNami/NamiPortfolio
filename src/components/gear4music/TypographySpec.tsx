@@ -55,10 +55,10 @@ const SCALE: { label: string; spec: string; sample: string; className: string; u
   { label: "Label / UI", spec: "0.6875rem / lh 1", sample: "NEW ARRIVAL · €1,299.00", className: "font-dm-mono uppercase tracking-wider", use: "Badges, price tags, category labels" },
 ];
 
-export default function TypographySpec() {
+export default function TypographySpec({ index = "05" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="05" title="Type Hierarchy" />
+      <SectionHeading index={index} title="Type Hierarchy" />
       <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
         Three families with one purpose each. No redundancy, no decoration.
       </p>

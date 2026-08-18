@@ -42,10 +42,10 @@ function Badge({ text, bg, filled = false }: { text: string; bg: string; filled?
   );
 }
 
-export default function ComponentsShowcase() {
+export default function ComponentsShowcase({ index = "04" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="04" title="Components" />
+      <SectionHeading index={index} title="Components" />
 
       <RevealOnScroll y={16}>
         <SubLabel>Buttons</SubLabel>

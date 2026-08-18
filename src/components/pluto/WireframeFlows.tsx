@@ -58,10 +58,10 @@ function ScreenGrid({
  * way the design sheet does: the auth flow, the main app tabs, the AI
  * assistant, then the course-detail drill-down.
  */
-export default function WireframeFlows() {
+export default function WireframeFlows({ index = "01" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="01" title="Wireframes" />
+      <SectionHeading index={index} title="Wireframes" />
       <p className="mt-3 max-w-lg font-dm text-sm text-navy/60 dark:text-cream/60">
         Mid-fidelity wireframes showing screen anatomy, navigation structure, and component placement across all 8
         screens.
@@ -70,9 +70,12 @@ export default function WireframeFlows() {
       <div className="mt-10 space-y-12">
         <RevealOnScroll>
           <GroupLabel>Auth Flow</GroupLabel>
+          {/* No priority preload here — this section sits well below the
+              fold on the case-study page, so eagerly loading it would only
+              compete with the actual above-the-fold hero image for
+              bandwidth. Default lazy-loading is correct here. */}
           <ScreenGrid
             className="mx-auto mt-5 grid max-w-2xl grid-cols-3 gap-5"
-            priorityFirst
             screens={[
               { src: "/wireframes/Welcome.png", label: "Welcome" },
               { src: "/wireframes/login.png", label: "Login" },

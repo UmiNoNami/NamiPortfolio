@@ -23,6 +23,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { AboutModalProvider } from "@/lib/aboutModal";
 import { ResumeModalProvider } from "@/lib/resumeModal";
 import { WindowManagerProvider } from "@/lib/windowManager";
+import { ContactChatProvider } from "@/lib/contactChat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -85,10 +86,70 @@ const dmMono = DM_Mono({
   variable: "--font-dm-mono",
 });
 
+const SITE_URL = "https://heyitsnami.com";
+const SITE_TITLE = "Nami — UI/UX Designer & Front-End Developer in Dublin";
+const SITE_DESCRIPTION =
+  "Portfolio of Nami Enkhjargal, a Dublin-based UI/UX designer and front-end developer creating thoughtful, playful digital experiences.";
+
 export const metadata: Metadata = {
-  title: "Nami — UI/UX Designer & Frontend Developer",
-  description:
-    "Nami (Naransuvd Enkhjargal) is a UI/UX designer who also builds things in code — Figma, React Native, and Next.js.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s — Nami",
+  },
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Nami — Portfolio",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Nami — UI/UX Designer & Front-End Developer" }],
+    locale: "en_IE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.png"],
+  },
+};
+
+// Person + portfolio-website structured data, so search engines can surface
+// Nami as a recognised entity (Knowledge Panel eligibility) alongside the
+// standard page metadata above.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
+      name: "Naransuvd Enkhjargal",
+      alternateName: "Nami",
+      url: SITE_URL,
+      jobTitle: "UI/UX Designer & Front-End Developer",
+      address: { "@type": "PostalAddress", addressLocality: "Dublin", addressCountry: "IE" },
+      sameAs: [
+        "https://www.linkedin.com/in/naransuvd-enkhjargal-8084271a9/",
+        "https://github.com/UmiNoNami",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Nami — Portfolio",
+      description: SITE_DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#person` },
+    },
+  ],
 };
 
 // Runs before hydration so the correct theme class is on <html> before the
@@ -114,6 +175,11 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+        />
       </head>
       <body
         className={`${inter.variable} ${playfair.variable} ${pixelify.variable} ${spaceMono.variable} ${plusJakarta.variable} ${dmSans.variable} ${bigShoulders.variable} ${figtree.variable} ${dmMono.variable} bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
@@ -122,15 +188,23 @@ export default function RootLayout({
           <AboutModalProvider>
             <ResumeModalProvider>
               <WindowManagerProvider>
-                <ScrollProgress />
-                <CursorBadge />
-                <Preloader />
-                <div id="top" />
-                {children}
-                <AboutModal />
-                <ResumeModal />
-                <PlaygroundModal />
-                <ContactChat />
+                <ContactChatProvider>
+                  <ScrollProgress />
+                  <CursorBadge />
+                  <Preloader />
+                  <a
+                    href="#main-content"
+                    className="fixed left-3 top-3 z-[300] -translate-y-24 rounded-full bg-navy px-4 py-2 font-sans text-sm font-semibold text-cream opacity-0 transition-all focus:translate-y-0 focus:opacity-100 dark:bg-cream dark:text-navy"
+                  >
+                    Skip to content
+                  </a>
+                  <div id="top" />
+                  {children}
+                  <AboutModal />
+                  <ResumeModal />
+                  <PlaygroundModal />
+                  <ContactChat />
+                </ContactChatProvider>
               </WindowManagerProvider>
             </ResumeModalProvider>
           </AboutModalProvider>

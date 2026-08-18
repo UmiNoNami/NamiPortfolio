@@ -13,10 +13,10 @@ const PALETTE: { name: string; hex: string; note: string; light?: boolean }[] = 
   { name: "Hairline", hex: g4mColors.hairline, note: "Border" },
 ];
 
-export default function ColorSystem() {
+export default function ColorSystem({ index = "04" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="04" title="The Palette" />
+      <SectionHeading index={index} title="The Palette" />
       <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
         Dark-first. Every color chosen for contrast, warmth, and clear semantic role.
       </p>

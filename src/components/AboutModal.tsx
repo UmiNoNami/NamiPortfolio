@@ -4,9 +4,11 @@ import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAboutModal } from "@/lib/aboutModal";
+import { useResumeModal } from "@/lib/resumeModal";
+import { useContactChat } from "@/lib/contactChat";
 import { playClick } from "@/lib/sound";
 import { SPRING_SOFT, SPRING_SNAPPY } from "@/lib/motion";
-import { MailIcon } from "./ModernIcons";
+import { MailIcon, ArrowRightIcon, LinkedInIcon } from "./ModernIcons";
 
 type Spread = { left: ReactNode; right: ReactNode };
 
@@ -30,82 +32,6 @@ function PagePhoto({ src, alt, rotate = -2 }: { src: string; alt: string; rotate
   );
 }
 
-const spreads: Spread[] = [
-  {
-    left: <PagePhoto src="/about/about1.png" alt="Nami" rotate={-2} />,
-    right: (
-      <div className="flex h-full flex-col justify-center">
-        <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Hello</h2>
-        <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
-          My name is Naransuvd Enkhjargal, but everyone calls me Nami. I&apos;m originally from
-          Mongolia and now based in Dublin. I&apos;m curious, creative, and happiest when I&apos;m
-          learning something new or turning a random idea into something real.
-        </p>
-      </div>
-    ),
-  },
-  {
-    left: <PagePhoto src="/about/about2.jpeg" alt="Nami" rotate={2} />,
-    right: (
-      <div className="flex h-full flex-col justify-center">
-        <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">My Journey</h2>
-        <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
-          My career path wasn&apos;t perfectly planned. I changed direction, taught myself new
-          things, made plenty of mistakes, and discovered what genuinely excited me. This led
-          me to complete a Higher Diploma in Computing and later a master&apos;s degree in
-          Interactive Digital Media.
-        </p>
-      </div>
-    ),
-  },
-  {
-    left: <PagePhoto src="/about/about3.png" alt="Nami" rotate={-2} />,
-    right: (
-      <div className="flex h-full flex-col justify-center">
-        <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Always Growing</h2>
-        <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
-          I&apos;m hungry to keep learning, improving, and bringing fresh energy to the right
-          team. I&apos;m adaptable, determined, and never afraid to begin again when something
-          matters to me. My portfolio shows what I&apos;ve created, but a conversation will
-          reveal much more about me.
-        </p>
-      </div>
-    ),
-  },
-  {
-    left: (
-      <div className="flex h-full flex-col items-center justify-center">
-        <motion.div
-          className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-brand-yellow/35 to-brand-orange/25 sm:h-36 sm:w-36"
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <span className="text-5xl sm:text-6xl" role="img" aria-label="Coffee cup">
-            ☕
-          </span>
-        </motion.div>
-      </div>
-    ),
-    right: (
-      <div className="flex h-full flex-col justify-center">
-        <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Coffee?</h2>
-        <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
-          I&apos;m also a serious coffee lover. If something here catches your attention, let&apos;s
-          grab a coffee and have a chat. I might be exactly the person you&apos;re looking for. ☕
-        </p>
-        <a
-          href="mailto:naransuvd57@gmail.com"
-          onClick={() => playClick()}
-          className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-navy px-4 py-2 font-sans text-xs font-semibold text-cream transition-transform hover:-translate-y-0.5 sm:text-sm"
-        >
-          <MailIcon className="h-3.5 w-3.5" />
-          Say hello
-        </a>
-      </div>
-    ),
-  },
-];
-
 function ChevronIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -116,7 +42,112 @@ function ChevronIcon({ className = "h-4 w-4" }: { className?: string }) {
 
 export default function AboutModal() {
   const { isOpen, close } = useAboutModal();
+  const { open: openResume } = useResumeModal();
+  const { open: openContact } = useContactChat();
   const [page, setPage] = useState(0);
+
+  // Built inside the component (rather than as a module constant) so the
+  // final page's buttons can wire straight into the resume/contact modals.
+  const spreads: Spread[] = [
+    {
+      left: <PagePhoto src="/about/about1.png" alt="Nami" rotate={-2} />,
+      right: (
+        <div className="flex h-full flex-col justify-center">
+          <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Hello</h2>
+          <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
+            Hi, I&apos;m Nami. I&apos;m a UI/UX designer and front-end developer based in Dublin. My
+            background combines design, technology and a slightly restless curiosity about how things
+            work.
+          </p>
+        </div>
+      ),
+    },
+    {
+      left: <PagePhoto src="/about/about2.jpeg" alt="Nami" rotate={2} />,
+      right: (
+        <div className="flex h-full flex-col justify-center">
+          <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">My Journey</h2>
+          <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
+            I enjoy taking an idea from an early question to a visual system and, when the project
+            allows, turning that system into a working digital experience. I&apos;m self-taught in many
+            parts of my creative practice, and I recently completed a master&apos;s degree in
+            Interactive Digital Media.
+          </p>
+        </div>
+      ),
+    },
+    {
+      left: <PagePhoto src="/about/about3.png" alt="Nami" rotate={-2} />,
+      right: (
+        <div className="flex h-full flex-col justify-center">
+          <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Always Growing</h2>
+          <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
+            That combination has made me comfortable with learning quickly, experimenting and working
+            through unfamiliar problems. Outside my computer, I&apos;m usually looking for good coffee,
+            collecting visual inspiration or thinking about the next thing I want to make.
+          </p>
+        </div>
+      ),
+    },
+    {
+      left: (
+        <div className="flex h-full flex-col items-center justify-center">
+          <motion.div
+            className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-brand-yellow/35 to-brand-orange/25 sm:h-36 sm:w-36"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <span className="text-5xl sm:text-6xl" role="img" aria-label="Coffee cup">
+              ☕
+            </span>
+          </motion.div>
+        </div>
+      ),
+      right: (
+        <div className="flex h-full flex-col justify-center">
+          <h2 className="font-serif text-2xl italic leading-tight text-navy sm:text-3xl">Let&apos;s Talk</h2>
+          <p className="mt-3 font-sans text-[13px] leading-relaxed text-navy/75 sm:text-sm">
+            I&apos;m currently open to UI/UX, product design and front-end opportunities.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                playClick();
+                openResume();
+              }}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-navy px-3.5 py-2 font-sans text-xs font-semibold text-cream transition-transform hover:-translate-y-0.5"
+            >
+              View resume
+              <ArrowRightIcon className="h-3 w-3" />
+            </button>
+            <a
+              href="https://www.linkedin.com/in/naransuvd-enkhjargal-8084271a9/"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => playClick()}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-navy/20 px-3.5 py-2 font-sans text-xs font-semibold text-navy transition-colors hover:bg-navy/5"
+            >
+              <LinkedInIcon className="h-3 w-3" />
+              LinkedIn
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                playClick();
+                close();
+                openContact();
+              }}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-navy/20 px-3.5 py-2 font-sans text-xs font-semibold text-navy transition-colors hover:bg-navy/5"
+            >
+              <MailIcon className="h-3 w-3" />
+              Say hello
+            </button>
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     if (isOpen) setPage(0);
@@ -184,7 +215,7 @@ export default function AboutModal() {
               whileHover={{ scale: 1.08, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               transition={SPRING_SOFT}
-              className="absolute -top-3 -right-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-navy text-cream shadow-lg dark:bg-cream dark:text-navy sm:-top-4 sm:-right-4"
+              className="absolute -top-3 -right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-navy text-cream shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-navy/50 dark:bg-cream dark:text-navy dark:focus-visible:ring-cream/50 sm:-top-4 sm:-right-4"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <path d="M6 6l12 12M18 6L6 18" />
@@ -200,7 +231,7 @@ export default function AboutModal() {
                 whileHover={{ x: -3, scale: 1.06 }}
                 whileTap={{ scale: 0.9 }}
                 transition={SPRING_SNAPPY}
-                className="absolute left-0 top-1/2 z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy shadow-lg sm:-left-4"
+                className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-navy/50 sm:-left-4"
               >
                 <ChevronIcon className="h-4 w-4 rotate-180" />
               </motion.button>
@@ -213,7 +244,7 @@ export default function AboutModal() {
                 whileHover={{ x: 3, scale: 1.06 }}
                 whileTap={{ scale: 0.9 }}
                 transition={SPRING_SNAPPY}
-                className="absolute right-0 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-white text-navy shadow-lg sm:-right-4"
+                className="absolute right-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-white text-navy shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-navy/50 sm:-right-4"
               >
                 <ChevronIcon className="h-4 w-4" />
               </motion.button>
@@ -255,18 +286,24 @@ export default function AboutModal() {
               </div>
             </div>
 
-            {/* Page dots */}
-            <div className="mt-4 flex items-center justify-center gap-2">
+            {/* Page dots — each button's tap target is 44px even though the
+                visible dot stays small, so it's easy to hit on a phone. */}
+            <div className="mt-4 flex items-center justify-center gap-1">
               {spreads.map((_, i) => (
                 <button
                   key={i}
                   type="button"
                   aria-label={`Go to page ${i + 1}`}
+                  aria-current={i === page}
                   onClick={() => goTo(i)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === page ? "w-5 bg-white" : "w-1.5 bg-white/40 hover:bg-white/60"
-                  }`}
-                />
+                  className="flex h-11 w-11 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
+                  <span
+                    className={`h-1.5 rounded-full transition-all ${
+                      i === page ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
           </motion.div>

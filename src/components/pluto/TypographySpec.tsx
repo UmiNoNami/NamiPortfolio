@@ -62,10 +62,10 @@ const SCALE: { label: string; spec: string; sample: string; className: string }[
   },
 ];
 
-export default function TypographySpec() {
+export default function TypographySpec({ index = "03" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="03" title="Typography" />
+      <SectionHeading index={index} title="Typography" />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <RevealOnScroll y={16}>

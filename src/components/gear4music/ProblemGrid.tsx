@@ -2,54 +2,44 @@ import RevealOnScroll from "../RevealOnScroll";
 import SectionHeading from "./SectionHeading";
 import { g4mColors } from "./tokens";
 
+// Four heuristic-review findings — framed as observations from reviewing
+// the live site against usability heuristics and competitor patterns, not
+// as claims of access to Gear4Music's own analytics or research.
 const PROBLEMS = [
   {
     n: "01",
-    title: "Visual Overload",
+    title: "Competing Visual Priorities",
     detail:
-      "Banner promotions, sidebar filters, sticky upsells and competing CTAs created cognitive paralysis before a user could locate an instrument category.",
+      "Promotional banners, navigation elements and product content compete for attention, making it difficult to identify the primary action.",
   },
   {
     n: "02",
-    title: "Broken Discovery",
+    title: "Complex Product Discovery",
     detail:
-      "The search bar returned unranked flat results with no category pre-filtering. Users abandoned the funnel at the search step in 38% of sessions.",
+      "A large catalogue requires clearer category relationships and stronger support for both browsing and direct search.",
   },
   {
     n: "03",
-    title: "Trust Signals Missing",
-    detail:
-      "No visible returns policy, brand logos buried in a footer table, and a checkout that felt dated compared to direct-to-consumer competitors like Andertons.",
+    title: "Inconsistent Trust Information",
+    detail: "Delivery, returns and availability information should remain visible at important purchase decisions.",
   },
   {
     n: "04",
-    title: "Mobile Parity Gap",
-    detail:
-      "The desktop layout was compressed into mobile viewports rather than redesigned. Tap targets averaged 28px — well below the 44px accessibility floor.",
-  },
-  {
-    n: "05",
-    title: "Brand Identity Absent",
-    detail:
-      "No consistent colour palette, three competing typefaces in the navigation alone, and a logo that differed between header, email, and app icon.",
-  },
-  {
-    n: "06",
-    title: "Performance Debt",
-    detail:
-      "Unoptimised hero images and third-party scripts pushed page load speed to 4.8 seconds, directly correlating with a 22% bounce rate on product landing pages.",
+    title: "Mobile Hierarchy",
+    detail: "Desktop navigation patterns need to be reconsidered for smaller screens rather than simply compressed.",
   },
 ];
 
-export default function ProblemGrid() {
+export default function ProblemGrid({ index = "03" }: { index?: string }) {
   return (
     <div>
-      <SectionHeading index="01" title="What Was Broken" />
+      <SectionHeading index={index} title="Areas of Opportunity" />
       <p className="mt-3 max-w-lg font-figtree text-sm" style={{ color: g4mColors.subdued }}>
-        The legacy site had a catalogue of problems as large as its product range.
+        Findings from a heuristic review of the live site against standard usability heuristics and
+        competitor patterns.
       </p>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {PROBLEMS.map((p, i) => (
           <RevealOnScroll key={p.n} delay={0.05 * i} y={16}>
             <div

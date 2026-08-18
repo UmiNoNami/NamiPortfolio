@@ -10,6 +10,7 @@ import ColorRevealLens from "./ColorRevealLens";
 import { playClick } from "@/lib/sound";
 import { EASE_SMOOTH, SPRING_SNAPPY } from "@/lib/motion";
 import { enterCursorBadgeTarget, leaveCursorBadgeTarget } from "@/lib/cursorBadge";
+import { useAboutModal } from "@/lib/aboutModal";
 import {
   BrushIcon,
   ChevronDownIcon,
@@ -63,6 +64,7 @@ const socials = [
 ];
 
 export default function Hero() {
+  const { open: openAbout } = useAboutModal();
   const [tool, setTool] = useState<DrawTool>("cursor");
   const [color, setColor] = useState(swatches[1].hex);
   const canvasRef = useRef<DrawCanvasHandle>(null);
@@ -88,8 +90,53 @@ export default function Hero() {
     mvY.set(0);
   };
 
+  const goToWork = () => {
+    playClick();
+    document.getElementById("work")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <section id="top" className="relative">
+      {/* ---------------- INTRO ---------------- */}
+      {/* The single most important thing on the page: who Nami is, what she
+          does, and where to look next — readable within the first few
+          seconds, before any of the illustration/toolbar personality below. */}
+      <motion.div {...fadeUp(0)} className="mx-auto max-w-2xl pt-4 text-center sm:pt-6">
+        <h1 className="font-sans text-3xl font-extrabold leading-[1.1] tracking-tight text-navy dark:text-cream sm:text-4xl lg:text-5xl">
+          Hi, I&apos;m <span className="font-serif italic text-brand-orange">Nami</span> — a UI/UX
+          designer and front-end developer.
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl font-sans text-[15px] leading-relaxed text-navy/70 dark:text-cream/70 sm:text-base">
+          I create thoughtful digital experiences and bring them to life through design and code. I enjoy
+          turning complex ideas into interfaces that feel clear, playful and easy to use.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <motion.button
+            type="button"
+            onClick={goToWork}
+            whileHover={{ y: -1, scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            transition={SPRING_SNAPPY}
+            className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-navy px-6 py-2.5 font-sans text-sm font-semibold text-cream shadow-sm outline-none transition-shadow hover:shadow-lg focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:bg-cream dark:text-navy dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
+          >
+            View my work
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={() => {
+              playClick();
+              openAbout();
+            }}
+            whileHover={{ y: -1, scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            transition={SPRING_SNAPPY}
+            className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-navy/20 px-6 py-2.5 font-sans text-sm font-semibold text-navy outline-none transition-colors hover:bg-navy/5 focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:border-cream/25 dark:text-cream dark:hover:bg-cream/10 dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
+          >
+            About me
+          </motion.button>
+        </div>
+      </motion.div>
+
       <div className="grid grid-cols-1 gap-12 py-3 lg:grid-cols-[200px_1fr_260px] lg:gap-8 lg:py-4">
         {/* ---------------- LEFT ---------------- */}
         <motion.div {...fadeUp(0)} className="flex flex-col gap-4">

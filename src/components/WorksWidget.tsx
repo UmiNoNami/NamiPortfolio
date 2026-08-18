@@ -112,14 +112,18 @@ export default function WorksWidget({ className = "" }: { className?: string }) 
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => playClick()}
-                  className="flex items-center gap-3 rounded-2xl px-2 py-2 transition-colors group-hover:bg-white/10"
+                  aria-label={`Visit the live site for ${meta.name}`}
+                  className="flex min-h-[44px] items-center gap-3 rounded-2xl px-2 py-2 outline-none transition-colors group-hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-cream/50"
                 >
                   <ProjectIconChip meta={meta} />
-                  <span className="font-sans text-sm font-medium">{meta.name}</span>
+                  <span className="min-w-0">
+                    <span className="block font-sans text-sm font-medium">{meta.name}</span>
+                    <span className="block truncate font-sans text-[11px] text-cream/55">{project.category}</span>
+                  </span>
                   <motion.span
                     initial={{ opacity: 0, x: -4 }}
                     whileHover={{ opacity: 1, x: 0 }}
-                    className="ml-auto text-cream/60 group-hover:opacity-100"
+                    className="ml-auto shrink-0 text-cream/60 group-hover:opacity-100"
                   >
                     <ArrowRightIcon className="h-3.5 w-3.5" />
                   </motion.span>
@@ -128,14 +132,18 @@ export default function WorksWidget({ className = "" }: { className?: string }) 
                 <Link
                   href={`/work/${project.slug}`}
                   onClick={() => playClick()}
-                  className="flex items-center gap-3 rounded-2xl px-2 py-2 transition-colors group-hover:bg-white/10"
+                  aria-label={`View case study: ${meta.name}`}
+                  className="flex min-h-[44px] items-center gap-3 rounded-2xl px-2 py-2 outline-none transition-colors group-hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-cream/50"
                 >
                   <ProjectIconChip meta={meta} />
-                  <span className="font-sans text-sm font-medium">{meta.name}</span>
+                  <span className="min-w-0">
+                    <span className="block font-sans text-sm font-medium">{meta.name}</span>
+                    <span className="block truncate font-sans text-[11px] text-cream/55">{project.category}</span>
+                  </span>
                   <motion.span
                     initial={{ opacity: 0, x: -4 }}
                     whileHover={{ opacity: 1, x: 0 }}
-                    className="ml-auto text-cream/60 group-hover:opacity-100"
+                    className="ml-auto shrink-0 text-cream/60 group-hover:opacity-100"
                   >
                     <ArrowRightIcon className="h-3.5 w-3.5" />
                   </motion.span>
