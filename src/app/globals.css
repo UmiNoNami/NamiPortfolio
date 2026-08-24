@@ -4,8 +4,22 @@
 
 html {
   scroll-behavior: smooth;
-  /* Nudges every rem-based type size (and spacing) up slightly, site-wide. */
-  font-size: 106.25%;
+  /* Nudges every rem-based type size (and spacing) up slightly, site-wide,
+     then applies the accessibility panel's text-size multiplier on top.
+     Because almost all type on the site is set in Tailwind's rem-based
+     scale, changing this one root value scales navigation, buttons,
+     headings, body copy and project descriptions together. */
+  font-size: calc(106.25% * var(--a11y-text-scale, 1));
+}
+
+:root {
+  --a11y-text-scale: 1;
+}
+html[data-text-size="small"] {
+  --a11y-text-scale: 0.92;
+}
+html[data-text-size="large"] {
+  --a11y-text-scale: 1.16;
 }
 
 body {
@@ -108,4 +122,155 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Same rule, driven by the in-app "Reduce motion" toggle instead of (or in
+   addition to) the OS preference above — covers CSS-driven animation such
+   as the marquee loops on the Gear4Music case study. Framer Motion's own
+   entrance/floating/parallax animations are handled separately via
+   MotionConfig in @/lib/accessibility, since those are JS-driven and don't
+   respond to animation-duration overrides. */
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================================================
+   Accessibility panel — Highlight links
+   ========================================================================== */
+
+html[data-highlight-links] a:not(:has(> svg)):not(:has(> img)) {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+html[data-highlight-links] a {
+  color: #b3401f !important;
+}
+html.dark[data-highlight-links] a {
+  color: #f0b429 !important;
+}
+html[data-highlight-links] a:hover,
+html[data-highlight-links] a:focus-visible {
+  text-decoration-thickness: 2px;
+}
+/* Icon-only links (social icons, card chevrons) keep their shape but gain a
+   clear focus/hover ring instead of an underline, since color/underline
+   alone wouldn't read well on a small icon. */
+html[data-highlight-links] a:has(> svg):focus-visible,
+html[data-highlight-links] a:has(> img):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Accessibility panel — Readable font
+   ========================================================================== */
+
+html[data-readable-font] body {
+  /* Swap the decorative/display type pairings (Playfair Display italic,
+     and each case study's own headline font) for the site's clean sans —
+     the NAMI logo and case-study mono index badges are unaffected since
+     they already use --font-sans / --font-dm-mono directly. */
+  --font-serif: var(--font-sans) !important;
+  --font-jakarta: var(--font-sans) !important;
+  --font-dm: var(--font-sans) !important;
+  --font-big-shoulders: var(--font-sans) !important;
+  --font-figtree: var(--font-sans) !important;
+}
+html[data-readable-font] body :is(p, li, blockquote) {
+  line-height: 1.7 !important;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   Accessibility panel — High-contrast theme
+   Page #000000, cards #111111, text #FFFFFF / #E5E5E5, accent #FFD600,
+   links #6DD5FF, borders #FFFFFF, focus outline #FFD600.
+   Broad attribute-substring overrides so the theme applies site-wide
+   without having to rewrite every component's color classes by hand.
+   ========================================================================== */
+
+html[data-a11y-theme="high-contrast"] {
+  color-scheme: dark;
+}
+html[data-a11y-theme="high-contrast"] body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html[data-a11y-theme="high-contrast"] [class*="bg-cream"],
+html[data-a11y-theme="high-contrast"] [class*="bg-canvas"],
+html[data-a11y-theme="high-contrast"] [class*="bg-paper"],
+html[data-a11y-theme="high-contrast"] [class*="bg-white"],
+html[data-a11y-theme="high-contrast"] [class*="bg-midnight"],
+html[data-a11y-theme="high-contrast"] [class*="bg-ink"] {
+  background-color: #111111 !important;
+}
+html[data-a11y-theme="high-contrast"] [class*="bg-navy"] {
+  background-color: #000000 !important;
+  border-color: #ffffff !important;
+}
+html[data-a11y-theme="high-contrast"] [class*="bg-brand-orange"] {
+  background-color: #000000 !important;
+  border: 2px solid #ffd600 !important;
+}
+
+html[data-a11y-theme="high-contrast"] [class*="text-navy"],
+html[data-a11y-theme="high-contrast"] [class*="text-ink"],
+html[data-a11y-theme="high-contrast"] [class*="text-cream"],
+html[data-a11y-theme="high-contrast"] [class*="text-white"] {
+  color: #ffffff !important;
+}
+html[data-a11y-theme="high-contrast"] [class*="/70"],
+html[data-a11y-theme="high-contrast"] [class*="/60"],
+html[data-a11y-theme="high-contrast"] [class*="/55"],
+html[data-a11y-theme="high-contrast"] [class*="/50"],
+html[data-a11y-theme="high-contrast"] [class*="/45"],
+html[data-a11y-theme="high-contrast"] [class*="/40"],
+html[data-a11y-theme="high-contrast"] [class*="/35"] {
+  color: #e5e5e5 !important;
+  opacity: 1 !important;
+}
+html[data-a11y-theme="high-contrast"] [class*="text-brand-orange"],
+html[data-a11y-theme="high-contrast"] [class*="text-brand-yellow"],
+html[data-a11y-theme="high-contrast"] [class*="text-brand-sky"] {
+  color: #ffd600 !important;
+}
+
+html[data-a11y-theme="high-contrast"] [class*="border-navy"],
+html[data-a11y-theme="high-contrast"] [class*="border-cream"] {
+  border-color: #ffffff !important;
+}
+
+html[data-a11y-theme="high-contrast"] a {
+  color: #6dd5ff !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+html[data-a11y-theme="high-contrast"] a:hover,
+html[data-a11y-theme="high-contrast"] a:focus-visible {
+  color: #ffd600 !important;
+}
+
+html[data-a11y-theme="high-contrast"] ::placeholder {
+  color: #e5e5e5 !important;
+  opacity: 1 !important;
+}
+
+/* Shadows read as low-contrast visual noise — solid white borders (above)
+   carry the same "this is a card/button" signal instead. */
+html[data-a11y-theme="high-contrast"] [class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* A guaranteed, high-contrast focus indicator, independent of whatever
+   ring color a component's own focus-visible classes would otherwise use. */
+html[data-a11y-theme="high-contrast"] :focus-visible {
+  outline: 3px solid #ffd600 !important;
+  outline-offset: 2px !important;
 }

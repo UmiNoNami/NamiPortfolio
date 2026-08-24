@@ -10,7 +10,7 @@ import ColorRevealLens from "./ColorRevealLens";
 import { playClick } from "@/lib/sound";
 import { EASE_SMOOTH, SPRING_SNAPPY } from "@/lib/motion";
 import { enterCursorBadgeTarget, leaveCursorBadgeTarget } from "@/lib/cursorBadge";
-import { useAboutModal } from "@/lib/aboutModal";
+import { useAccessibility } from "@/lib/accessibility";
 import {
   BrushIcon,
   ChevronDownIcon,
@@ -64,7 +64,7 @@ const socials = [
 ];
 
 export default function Hero() {
-  const { open: openAbout } = useAboutModal();
+  const { settings } = useAccessibility();
   const [tool, setTool] = useState<DrawTool>("cursor");
   const [color, setColor] = useState(swatches[1].hex);
   const canvasRef = useRef<DrawCanvasHandle>(null);
@@ -81,6 +81,10 @@ export default function Hero() {
   const illustrationRotate = useTransform(springY, [-1, 1], [1.5, -1.5]);
 
   const handleArtMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    // The mouse-tracked tilt is driven imperatively via motion values, so
+    // it isn't covered by MotionConfig's reducedMotion setting the way
+    // declarative animate props are — skip it explicitly instead.
+    if (settings.reduceMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     mvX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
     mvY.set(((e.clientY - rect.top) / rect.height - 0.5) * 2);
@@ -90,53 +94,8 @@ export default function Hero() {
     mvY.set(0);
   };
 
-  const goToWork = () => {
-    playClick();
-    document.getElementById("work")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <section id="top" className="relative">
-      {/* ---------------- INTRO ---------------- */}
-      {/* The single most important thing on the page: who Nami is, what she
-          does, and where to look next — readable within the first few
-          seconds, before any of the illustration/toolbar personality below. */}
-      <motion.div {...fadeUp(0)} className="mx-auto max-w-2xl pt-4 text-center sm:pt-6">
-        <h1 className="font-sans text-3xl font-extrabold leading-[1.1] tracking-tight text-navy dark:text-cream sm:text-4xl lg:text-5xl">
-          Hi, I&apos;m <span className="font-serif italic text-brand-orange">Nami</span> — a UI/UX
-          designer and front-end developer.
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl font-sans text-[15px] leading-relaxed text-navy/70 dark:text-cream/70 sm:text-base">
-          I create thoughtful digital experiences and bring them to life through design and code. I enjoy
-          turning complex ideas into interfaces that feel clear, playful and easy to use.
-        </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <motion.button
-            type="button"
-            onClick={goToWork}
-            whileHover={{ y: -1, scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            transition={SPRING_SNAPPY}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-navy px-6 py-2.5 font-sans text-sm font-semibold text-cream shadow-sm outline-none transition-shadow hover:shadow-lg focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:bg-cream dark:text-navy dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
-          >
-            View my work
-          </motion.button>
-          <motion.button
-            type="button"
-            onClick={() => {
-              playClick();
-              openAbout();
-            }}
-            whileHover={{ y: -1, scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            transition={SPRING_SNAPPY}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-navy/20 px-6 py-2.5 font-sans text-sm font-semibold text-navy outline-none transition-colors hover:bg-navy/5 focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:border-cream/25 dark:text-cream dark:hover:bg-cream/10 dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
-          >
-            About me
-          </motion.button>
-        </div>
-      </motion.div>
-
       <div className="grid grid-cols-1 gap-12 py-3 lg:grid-cols-[200px_1fr_260px] lg:gap-8 lg:py-4">
         {/* ---------------- LEFT ---------------- */}
         <motion.div {...fadeUp(0)} className="flex flex-col gap-4">
@@ -268,10 +227,16 @@ export default function Hero() {
                 />
               </motion.div>
 
-              <span className="absolute bottom-3 left-3 z-20 font-serif text-xl italic text-navy">
+              {/* Fixed px sizes (not the site's rem-based text scale) —
+                  this label sits inside a fixed-height decorative card with
+                  overflow-hidden, so it deliberately doesn't grow with the
+                  accessibility panel's text-size control the way real
+                  content elsewhere does; otherwise "A+" clips it against
+                  the card edge instead of making it more readable. */}
+              <span className="absolute bottom-3 left-3 z-20 font-serif text-[20px] italic text-navy">
                 Design
               </span>
-              <span className="absolute bottom-3 right-3 z-20 font-sans text-xl font-extrabold text-navy">
+              <span className="absolute bottom-3 right-3 z-20 font-sans text-[20px] font-extrabold text-navy">
                 Code
               </span>
             </div>
@@ -320,8 +285,8 @@ export default function Hero() {
               onMouseLeave={leaveCursorBadgeTarget}
             >
               <div className="absolute left-4 top-16 max-w-[150px]">
-                <h3 className="font-sans text-sm font-semibold text-navy dark:text-cream">UI/UX Design</h3>
-                <p className="mt-1 font-sans text-xs leading-relaxed text-navy/70 dark:text-cream/70">
+                <h3 className="font-sans text-[14px] font-semibold text-navy dark:text-cream">UI/UX Design</h3>
+                <p className="mt-1 font-sans text-[12px] leading-relaxed text-navy/70 dark:text-cream/70">
                   Thoughtful interfaces shaped around real people.
                 </p>
               </div>
@@ -336,7 +301,7 @@ export default function Hero() {
                     onClick={() => playClick()}
                     className="group flex items-center justify-end gap-2"
                   >
-                    <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-1 font-sans text-xs font-medium text-navy shadow-sm transition-transform duration-200 group-hover:-translate-x-0.5">
+                    <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-1 font-sans text-[12px] font-medium text-navy shadow-sm transition-transform duration-200 group-hover:-translate-x-0.5">
                       {s.label}
                     </span>
                     <span
@@ -347,8 +312,8 @@ export default function Hero() {
                   </a>
                 ))}
                 <div className="mt-6 max-w-[150px] text-right">
-                  <h3 className="font-sans text-sm font-semibold text-navy dark:text-cream">Front-End</h3>
-                  <p className="mt-1 font-sans text-xs leading-relaxed text-navy/70 dark:text-cream/70">
+                  <h3 className="font-sans text-[14px] font-semibold text-navy dark:text-cream">Front-End</h3>
+                  <p className="mt-1 font-sans text-[12px] leading-relaxed text-navy/70 dark:text-cream/70">
                     Playful ideas built into responsive experiences.
                   </p>
                 </div>
@@ -471,7 +436,7 @@ export default function Hero() {
                 hovering "Code" tightens and darkens it instead (stark,
                 serious) — a deliberate contrast between the two words. */}
             <span
-              className={`absolute left-14 top-[315px] z-20 font-serif text-4xl italic transition-all duration-300 sm:left-20 sm:top-[345px] sm:text-5xl ${
+              className={`absolute left-14 top-[315px] z-20 font-serif text-[36px] italic transition-all duration-300 sm:left-20 sm:top-[345px] sm:text-[48px] ${
                 designHover
                   ? "scale-110 animate-text-shimmer bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(240,180,41,0.55)]"
                   : "text-navy dark:text-cream"
@@ -492,7 +457,7 @@ export default function Hero() {
               Design
             </span>
             <span
-              className={`absolute right-14 top-[315px] z-20 font-sans text-4xl transition-all duration-300 sm:right-20 sm:top-[345px] sm:text-5xl ${
+              className={`absolute right-14 top-[315px] z-20 font-sans text-[36px] transition-all duration-300 sm:right-20 sm:top-[345px] sm:text-[48px] ${
                 codeHover
                   ? "scale-95 font-black tracking-tighter text-ink dark:text-white"
                   : "font-extrabold text-navy dark:text-cream"

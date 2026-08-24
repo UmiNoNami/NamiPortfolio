@@ -19,7 +19,7 @@ import AboutModal from "@/components/AboutModal";
 import ResumeModal from "@/components/ResumeModal";
 import PlaygroundModal from "@/components/PlaygroundModal";
 import ContactChat from "@/components/ContactChat";
-import { ThemeProvider } from "@/lib/theme";
+import { AccessibilityProvider } from "@/lib/accessibility";
 import { AboutModalProvider } from "@/lib/aboutModal";
 import { ResumeModalProvider } from "@/lib/resumeModal";
 import { WindowManagerProvider } from "@/lib/windowManager";
@@ -152,14 +152,42 @@ const STRUCTURED_DATA = {
   ],
 };
 
-// Runs before hydration so the correct theme class is on <html> before the
-// first paint — otherwise there's a flash of the wrong theme on load.
-const THEME_INIT_SCRIPT = `
+// Runs before hydration so the correct color theme, text size and
+// motion/link/font accessibility preferences are all on <html> before the
+// first paint — otherwise there's a flash of the wrong theme (or a jump in
+// text size) right after load. Mirrors the shape of AccessibilitySettings
+// in @/lib/accessibility, since this has to run as plain JS before React
+// (and that module's own code) is available.
+const A11Y_INIT_SCRIPT = `
 (function () {
   try {
-    var stored = localStorage.getItem("nami-theme");
-    var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (dark) document.documentElement.classList.add("dark");
+    var root = document.documentElement;
+    var settings = null;
+    var raw = localStorage.getItem("nami-a11y-settings");
+    if (raw) {
+      settings = JSON.parse(raw);
+    } else {
+      var legacy = localStorage.getItem("nami-theme");
+      var dark = legacy ? legacy === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      settings = {
+        colorTheme: dark ? "dark" : "light",
+        textSize: "default",
+        reduceMotion: reduceMotion,
+        highlightLinks: false,
+        readableFont: false
+      };
+    }
+    if (settings.colorTheme === "dark" || settings.colorTheme === "high-contrast") {
+      root.classList.add("dark");
+    }
+    if (settings.colorTheme === "high-contrast") {
+      root.setAttribute("data-a11y-theme", "high-contrast");
+    }
+    root.setAttribute("data-text-size", settings.textSize || "default");
+    if (settings.reduceMotion) root.setAttribute("data-reduce-motion", "");
+    if (settings.highlightLinks) root.setAttribute("data-highlight-links", "");
+    if (settings.readableFont) root.setAttribute("data-readable-font", "");
   } catch (e) {}
 })();
 `;
@@ -172,8 +200,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT_SCRIPT}
+        <Script id="a11y-init" strategy="beforeInteractive">
+          {A11Y_INIT_SCRIPT}
         </Script>
         <script
           type="application/ld+json"
@@ -184,7 +212,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} ${pixelify.variable} ${spaceMono.variable} ${plusJakarta.variable} ${dmSans.variable} ${bigShoulders.variable} ${figtree.variable} ${dmMono.variable} bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
       >
-        <ThemeProvider>
+        <AccessibilityProvider>
           <AboutModalProvider>
             <ResumeModalProvider>
               <WindowManagerProvider>
@@ -208,7 +236,7 @@ export default function RootLayout({
               </WindowManagerProvider>
             </ResumeModalProvider>
           </AboutModalProvider>
-        </ThemeProvider>
+        </AccessibilityProvider>
       </body>
     </html>
   );

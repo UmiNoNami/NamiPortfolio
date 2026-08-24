@@ -8,7 +8,7 @@ import { useAboutModal } from "@/lib/aboutModal";
 import { useResumeModal } from "@/lib/resumeModal";
 import { useWindowManager } from "@/lib/windowManager";
 import { useContactChat } from "@/lib/contactChat";
-import ThemeToggle from "./ThemeToggle";
+import AccessibilityPanel from "./AccessibilityPanel";
 import { CloseIcon, MenuIcon } from "./ModernIcons";
 
 const linkClass =
@@ -25,14 +25,6 @@ export default function Navbar() {
   const { open: openContact } = useContactChat();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const goToWork = () => {
-    playClick();
-    setMenuOpen(false);
-    const el = document.getElementById("work");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    else window.location.hash = "#work";
-  };
-
   const handleContact = () => {
     playClick();
     setMenuOpen(false);
@@ -44,7 +36,7 @@ export default function Navbar() {
       initial={{ opacity: 0, y: -14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: EASE_SMOOTH }}
-      className="flex items-center justify-between gap-6 py-2"
+      className="grid grid-cols-2 items-center gap-6 py-2 md:grid-cols-[1fr_auto_1fr]"
     >
       <motion.a
         href="/#top"
@@ -52,17 +44,12 @@ export default function Navbar() {
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
         transition={SPRING_SNAPPY}
-        className="rounded-md font-sans text-2xl font-extrabold tracking-tight text-navy outline-none focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:text-cream dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
+        className="justify-self-start rounded-md font-sans text-2xl font-extrabold tracking-tight text-navy outline-none focus-visible:ring-2 focus-visible:ring-navy/40 focus-visible:ring-offset-2 focus-visible:ring-offset-cream dark:text-cream dark:focus-visible:ring-cream/40 dark:focus-visible:ring-offset-midnight-card"
       >
         NAMI.
       </motion.a>
 
-      <div className="hidden items-center gap-9 font-sans text-[15px] font-medium text-navy/80 dark:text-cream/75 md:flex">
-        <button type="button" onClick={goToWork} className={linkClass}>
-          Work
-          <span className={underlineClass} />
-        </button>
-
+      <div className="hidden items-center gap-9 justify-self-center font-sans text-[15px] font-medium text-navy/80 dark:text-cream/75 md:flex">
         {/* About pops the notebook open on the same page instead of navigating. */}
         <button
           type="button"
@@ -108,78 +95,77 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu: the same actions as the desktop nav, since they were
-          disappearing entirely below md with no fallback. */}
-      <div className="relative md:hidden">
-        <motion.button
-          type="button"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-          onClick={() => {
-            playClick();
-            setMenuOpen((v) => !v);
-          }}
-          whileTap={{ scale: 0.9 }}
-          transition={SPRING_SNAPPY}
-          className="flex h-11 w-11 items-center justify-center rounded-full text-navy outline-none focus-visible:ring-2 focus-visible:ring-navy/40 dark:text-cream dark:focus-visible:ring-cream/40"
-        >
-          {menuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-        </motion.button>
+      <div className="flex items-center justify-self-end gap-2">
+        {/* Mobile menu: the same actions as the desktop nav, since they were
+            disappearing entirely below md with no fallback. */}
+        <div className="relative md:hidden">
+          <motion.button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => {
+              playClick();
+              setMenuOpen((v) => !v);
+            }}
+            whileTap={{ scale: 0.9 }}
+            transition={SPRING_SNAPPY}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-navy outline-none focus-visible:ring-2 focus-visible:ring-navy/40 dark:text-cream dark:focus-visible:ring-cream/40"
+          >
+            {menuOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+          </motion.button>
 
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.96 }}
-              transition={SPRING_SNAPPY}
-              className="absolute right-0 top-12 z-[60] flex w-48 flex-col gap-1 rounded-2xl border border-navy/10 bg-cream p-2 font-sans text-[15px] font-medium text-navy shadow-lg dark:border-cream/10 dark:bg-ink dark:text-cream"
-            >
-              <button type="button" onClick={goToWork} className={mobileItemClass}>
-                Work
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  setMenuOpen(false);
-                  openAbout();
-                }}
-                className={mobileItemClass}
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                transition={SPRING_SNAPPY}
+                className="absolute right-0 top-12 z-[60] flex w-48 flex-col gap-1 rounded-2xl border border-navy/10 bg-cream p-2 font-sans text-[15px] font-medium text-navy shadow-lg dark:border-cream/10 dark:bg-ink dark:text-cream"
               >
-                About
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  setMenuOpen(false);
-                  openResume();
-                }}
-                className={mobileItemClass}
-              >
-                Resume
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  setMenuOpen(false);
-                  openPlayground("playground");
-                }}
-                className={mobileItemClass}
-              >
-                Playground
-              </button>
-              <button type="button" onClick={handleContact} className={mobileItemClass}>
-                Contact
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    setMenuOpen(false);
+                    openAbout();
+                  }}
+                  className={mobileItemClass}
+                >
+                  About
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    setMenuOpen(false);
+                    openResume();
+                  }}
+                  className={mobileItemClass}
+                >
+                  Resume
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    setMenuOpen(false);
+                    openPlayground("playground");
+                  }}
+                  className={mobileItemClass}
+                >
+                  Playground
+                </button>
+                <button type="button" onClick={handleContact} className={mobileItemClass}>
+                  Contact
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <AccessibilityPanel />
       </div>
-
-      <ThemeToggle />
     </motion.nav>
   );
 }

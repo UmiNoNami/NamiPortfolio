@@ -35,7 +35,21 @@ export default function Preloader() {
     // ?intro=1 forces it to replay even if this tab has already seen it —
     // handy for testing/demoing without opening a private window.
     const forceReplay = new URLSearchParams(window.location.search).has("intro");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Read the accessibility panel's stored "Reduce motion" toggle directly
+    // (rather than via context) since this effect can run before the
+    // AccessibilityProvider has resolved its own first client render —
+    // reading localStorage synchronously here matches the anti-flash script
+    // that already sets this before paint.
+    let reduceMotionSetting = false;
+    try {
+      const raw = localStorage.getItem("nami-a11y-settings");
+      if (raw) reduceMotionSetting = Boolean(JSON.parse(raw).reduceMotion);
+    } catch {
+      // ignore
+    }
+    const reducedMotion =
+      reduceMotionSetting || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reducedMotion) {
       // Respect the preference outright — no flashing word cycle, no
