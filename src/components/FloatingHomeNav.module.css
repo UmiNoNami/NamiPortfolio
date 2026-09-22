@@ -1,0 +1,79 @@
+.navigation {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: min(700px, calc(100svh - 150px));
+  padding: 36px 0 64px;
+  color: #12100f;
+  perspective: 1400px;
+}
+
+.cluster {
+  position: relative;
+  width: min(100%, 520px);
+  height: 340px;
+}
+
+/* Separate, generously spaced footprints keep motion away from neighbours. */
+.slot { position: absolute; width: 30%; }
+.slot[data-item="about"] { left: 12%; top: 8%; }
+.slot[data-item="projects"] { right: 10%; top: 0; width: 32%; }
+.slot[data-item="contact"] { left: 5%; top: 59%; width: 32%; }
+.slot[data-item="playground"] { right: 12%; top: 57%; width: 34%; }
+.key { display: block; width: 100%; min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 18%; background: transparent; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.art { display: block; width: 100%; height: auto; user-select: none; pointer-events: none; }
+.float { animation: drift var(--float-duration) var(--float-delay) ease-in-out infinite; }
+.slot:has(.key:hover) .float, .slot:focus-within .float { animation-play-state: paused; }
+.surface {
+  display: block;
+  pointer-events: none;
+  transform: translateY(0) scale(1);
+  filter: drop-shadow(0 3px 1px rgb(18 16 15 / 9%));
+  transition: transform 240ms cubic-bezier(.2,.8,.25,1.12), filter 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .key:hover .surface { transform: translateY(-3px); filter: drop-shadow(0 7px 2px rgb(18 16 15 / 13%)); }
+}
+.key:focus-visible .surface { transform: translateY(-3px); }
+.key[data-pressed="true"] .surface {
+  transform: translateY(4px) scale(.988);
+  filter: drop-shadow(0 1px 0 rgb(18 16 15 / 7%));
+  transition: transform 65ms ease-out, filter 65ms ease-out;
+}
+.status { position: absolute; bottom: 20px; margin: 0; min-height: 1.5em; font: 12px/1.5 var(--font-mono), monospace; opacity: .7; }
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  50% { transform: translate(var(--float-x), var(--float-y)) rotate(var(--float-rotation)); }
+}
+.key:focus-visible { outline: 2px solid currentColor; outline-offset: 8px; }
+:global(.dark) .navigation { color: #f7f3e9; }
+
+@media (max-width: 900px) {
+  .navigation { min-height: 560px; }
+  .navigation .cluster { transform: none !important; }
+  .float { --float-x: 0px; --float-y: -2px; --float-rotation: .35deg; }
+}
+
+/* Both the OS preference and the portfolio accessibility switch apply. */
+.navigation[data-reduced="true"] .float { animation: none; }
+.navigation[data-reduced="true"] .cluster { transform: none !important; }
+.navigation[data-reduced="true"] .surface { transition: none; }
+.navigation[data-reduced="true"] .key:hover .surface,
+.navigation[data-reduced="true"] .key:focus-visible .surface { transform: none; }
+.navigation[data-reduced="true"] .key[data-pressed="true"] .surface { transform: translateY(2px); }
+@media (prefers-reduced-motion: reduce) {
+  .float { animation: none; }
+  .navigation .cluster { transform: none !important; }
+  .surface { transition: none; }
+  .key:hover .surface, .key:focus-visible .surface { transform: none; }
+  .key[data-pressed="true"] .surface { transform: translateY(2px); }
+}
+
+@media (max-width: 540px) {
+  .navigation { min-height: max(400px, calc(100svh - 150px)); padding: 32px 0 56px; }
+  .cluster { width: min(100%, 340px); height: 280px; }
+  .slot[data-item="about"] { left: 3%; width: 40%; }
+  .slot[data-item="projects"] { right: 1%; width: 42%; }
+  .slot[data-item="contact"] { left: 0; width: 42%; }
+  .slot[data-item="playground"] { right: 2%; width: 44%; }
+}

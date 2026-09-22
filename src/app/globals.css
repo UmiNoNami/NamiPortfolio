@@ -274,3 +274,10 @@ html[data-a11y-theme="high-contrast"] :focus-visible {
   outline: 3px solid #ffd600 !important;
   outline-offset: 2px !important;
 }
+
+/* Muted reading surfaces keep imagery intact and reduce bright page chrome. */
+html[data-a11y-theme="soft"] body {background:#bfb49f;color:#292e2b;}
+html[data-a11y-theme="soft"] :is([class~="bg-canvas"],[class~="bg-cream"],[class~="bg-white"],[class*="bg-white/"]) {background-color:#d7cdba!important;}
+html[data-readable-font] :is(h1,h2,h3,em) {font-family:var(--font-sans),Arial,sans-serif!important;font-style:normal!important;}
+html[data-a11y-theme="high-contrast"] [data-glass-screen] :is(p,span,h1,h2,h3,li,em,button) {color:#fff;}
+html[data-a11y-theme="high-contrast"] [data-glass-screen] button[aria-pressed="true"] {background:#000;color:#fff;outline:2px solid #ffd600;}

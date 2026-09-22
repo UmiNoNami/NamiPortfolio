@@ -1,0 +1,21 @@
+.page { min-height: 100svh; padding: 38px 5vw 80px; background: #eae1d2; color: #191916; font-family: var(--font-dm), sans-serif; }
+.header { display: flex; justify-content: space-between; gap: 24px; font-size: 15px; }
+.header nav { display: flex; flex-wrap: wrap; gap: 26px; }
+.header a:hover { color: #d74619; }
+.content { max-width: 1160px; margin: 95px auto 0; }
+.content h1 { font-size: clamp(44px, 6vw, 88px); font-weight: 700; letter-spacing: -.055em; line-height: 1.04; margin-bottom: 30px; }
+.eyebrow { text-transform: uppercase; letter-spacing: .3em; font-size: 11px; margin-bottom: 20px; }
+.lead { max-width: 650px; font-size: clamp(18px, 2vw, 24px); line-height: 1.65; color: #57554e; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-top: 55px; }
+.card { display: block; padding: 18px; background: #f5eee3; border: 1px solid #d9cdbb; border-radius: 22px; transition: transform 180ms; }
+.card:hover { transform: translateY(-5px); }
+.preview { position: relative; height: 290px; overflow: hidden; border-radius: 12px; background: #e5dbcb; }
+.card h2 { margin: 20px 0 8px; font-size: 25px; font-weight: 600; }
+.card p { font-size: 14px; color: #676157; }
+.actions { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 35px; }
+.actions a { border: 1px solid #b9ab96; padding: 14px 22px; border-radius: 12px; overflow-wrap: anywhere; }
+.actions a:first-child { background: #ff6938; color: #171715; border-color: #ff6938; }
+.actions a:active { transform: translateY(3px); }
+.game { margin-top: 35px; overflow: auto; padding: 15px; border-radius: 20px; background: #f6f0e5; }
+@media (max-width: 650px) { .header { flex-direction: column; } .header nav { gap: 18px; font-size: 13px; } .content { margin-top: 65px; } .grid { grid-template-columns: 1fr; } .preview { height: 230px; } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }

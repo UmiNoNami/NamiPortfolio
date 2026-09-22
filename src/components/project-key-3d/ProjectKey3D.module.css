@@ -1,0 +1,11 @@
+.root { position: relative; width: 100%; aspect-ratio: 1.22; isolation: isolate; }
+.canvas { position: absolute; inset: 0; pointer-events: none; }
+.control { position: absolute; inset: 16% 21% 15%; display: grid; place-items: center; border: 0; border-radius: 28px; background: transparent; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
+.control:focus-visible { outline: 2px solid #343a3d; outline-offset: 8px; }
+.fallback { display: flex; align-items: center; gap: 8px; max-width: 100%; padding: 18px 10px; border: 2px solid #32383b; border-radius: 12px; background: #f6693c; color: #fff6df; font: 700 clamp(10px, 1.2vw, 18px)/1.2 sans-serif; letter-spacing: .02em; }
+.control[data-ready="true"] .fallback { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.control[data-pressed="true"] .fallback { background: #dc5630; }
+.unavailable { position: absolute; bottom: 7%; left: 5%; right: 5%; margin: 0; text-align: center; font-size: 12px; color: #555b5d; }
+@media (max-width: 600px) { .root { aspect-ratio: 1; } .control { inset: 21% 13% 19%; } .control:focus-visible { outline-offset: 2px; } }
+/* Tight clusters need separate hit areas even where transparent canvases overlap. */
+@media (max-width: 600px) { .root[data-embedded="true"] .control { left: 20%; right: 20%; } }

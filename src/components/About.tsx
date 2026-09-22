@@ -37,7 +37,7 @@ export default function About() {
             about me
           </p>
           <h2 className="mt-2 font-pixel text-3xl sm:text-4xl">
-            A little bit design, a little bit dev.
+            Design with purpose. Build with precision.
           </h2>
           <p className="mt-4 max-w-xl font-mono text-sm leading-relaxed text-ink-soft sm:text-base">
             I&apos;m Naransuvd — friends call me Nami. I design mobile and web

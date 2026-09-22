@@ -8,3 +8,9 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Local preview cache and logs
+.next-dev/
+.preview*.log
+
+.check-*.log

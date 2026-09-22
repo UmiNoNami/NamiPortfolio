@@ -1,0 +1,33 @@
+.intro { position: fixed; inset: 0; z-index: 250; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: #f7f3e9; color: #12100f; outline: none; }
+.intro::backdrop { background: #f7f3e9; }
+.intro[data-leaving="true"] { opacity: 0; transform: translateY(-12px); transition: opacity 450ms ease, transform 450ms ease; }
+.intro[data-leaving="true"]::backdrop { background: transparent; }
+.character { position: absolute; width: min(633px, 76vw); height: auto; left: 50%; top: 52%; transform: translate(-50%, -50%); }
+.character image { filter: url(#nami-ink); }
+.enter { position: absolute; left: 50%; top: min(77%, calc(100% - 80px)); transform: translateX(-50%) rotate(-1deg); min-width: 148px; min-height: 54px; padding: 12px 23px; border: 2px solid #12100f; border-radius: 3px 1px 5px 2px / 2px 4px 2px 5px; background: #ef6446; color: #12100f; font: 600 17px var(--font-mono, "Courier New"), monospace; letter-spacing: .08em; cursor: pointer; touch-action: manipulation; }
+.enter:hover { background: #f27a60; box-shadow: 3px 3px 0 #12100f; }
+.enter:focus-visible { outline: 3px solid #12100f; outline-offset: 6px; }
+.enter { animation: buttonIn 500ms ease both; }
+.line { clip-path: inset(0 0 0 0); animation: drawLine 600ms ease-out both; }
+.firstHand { animation: handUp 600ms 600ms cubic-bezier(.22,.6,.36,1) both; }
+.secondHand { animation: handUp 500ms 1200ms cubic-bezier(.22,.6,.36,1) both; }
+.head { animation: headUp 1100ms 1700ms cubic-bezier(.22,.6,.36,1) both; }
+.hairBack { animation: hairBack 8s 3s ease-in-out infinite alternate; }
+.hairFront { animation: hairFront 9.5s 3s ease-in-out infinite alternate; }
+.intro[data-reduced="true"] *, .intro[data-reduced="true"] { animation: none; transition: none; }
+@keyframes drawLine { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes handUp { from { transform: translateY(60px); } to { transform: translateY(0); } }
+@keyframes headUp { from { transform: translateY(292px); } 85% { transform: translateY(-1px); } to { transform: translateY(0); } }
+@keyframes hairBack { from { transform: translate(0,0); } to { transform: translate(1px,1px); } }
+@keyframes hairFront { from { transform: translate(0,0); } to { transform: translate(-1px,.5px); } }
+@keyframes buttonIn { from { opacity: 0; } to { opacity: 1; } }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 600px) { .character { width: 92vw; top: 46%; } }
+@media (max-height: 500px) { .character { width: min(420px, 65vw, 70vh); top: 42%; } }
+@media (prefers-reduced-motion: reduce) { .intro *, .intro { animation: none !important; transition: none !important; } }
+.greetings { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+.greeting { font-family: var(--font-serif, Georgia), "Times New Roman", serif; font-size: clamp(32px, 7vw, 76px); font-weight: 500; line-height: 1.3; animation: greetingIn 180ms ease-out both; }
+.skipGreetings { position: absolute; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 12px 20px; min-height: 44px; background: transparent; border: 0; color: #12100f; font-size: 14px; cursor: pointer; }
+.skipGreetings:hover { text-decoration: underline; text-underline-offset: 4px; }
+.skipGreetings:focus-visible { outline: 2px solid #12100f; outline-offset: 3px; }
+@keyframes greetingIn { from { opacity: 0; } to { opacity: 1; } }

@@ -139,7 +139,7 @@ export default function ComponentsShowcase({ index = "04" }: { index?: string })
       <RevealOnScroll delay={0.18} y={16} className="mt-6">
         <SubLabel>Navigation Bar</SubLabel>
         <div
-          className="mt-3 flex items-center justify-center gap-1 rounded-full border-2 bg-white px-3 py-2 dark:bg-midnight-card"
+          className="mt-3 flex flex-wrap items-center justify-center gap-1 rounded-2xl border-2 bg-white px-3 py-2 dark:bg-midnight-card"
           style={{ borderColor: plutoColors.ink }}
         >
           {["Home", "Calendar", "Courses", "To-Do", "Profile"].map((label, i) => (

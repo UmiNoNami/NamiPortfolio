@@ -70,3 +70,21 @@ Push to GitHub and import the repo on [Vercel](https://vercel.com/new) — zero 
 - `src/components/Navbar.tsx` / `Footer.tsx` — nav bar (links to `#about-window` / `#work-window`
   on the homepage) and footer (case study pages only)
 - `src/data/projects.ts` — your 3 projects, edit this to update case study content
+
+### Display preferences and case-study navigation
+
+The homepage and `/work/[slug]` pages share `SiteHeader`. The glass project cards link to the existing KnockKnock, Pluto, and Gear4Music case studies; return links lead to `/projects`. Display controls are also available inside each glass screen.
+
+Display preferences offer light, soft light, dark, high contrast, text sizing, reduced motion, solid surfaces, a readable font, and underlined links. Preferences are stored locally under `nami-a11y-settings` and initialized before hydration. The settings use a native modal dialog with keyboard navigation, Escape dismissal, and focus restoration. Reduced motion also pauses the Gear4Music carousel.
+
+### Contact assistant
+
+The glass Contact screen supports portfolio questions, project recommendations, a cumulative project brief, and an editable email draft to naransuvd57@gmail.com. Sending is handled by the visitor's mail app; the site never sends an email automatically. Copy draft is available for webmail or clients with mailto length limits.
+
+AI setup: copy .env.local.example to .env.local, set OPENAI_API_KEY privately on the server, and set OPENAI_CHAT_MODEL to a Responses model with Structured Outputs support. The example uses gpt-4o-mini. Restart the development server after changing environment variables. Configure the same server-only variables on your host for deployment. Never use a NEXT_PUBLIC_ prefix for credentials. Without configuration, the UI explicitly runs a local guided flow. GET /api/assistant reports configuration availability, not provider health.
+
+AI replies use the Responses API with a strict JSON schema, store:false, factual project context, bounded messages, timeout/cancellation, refusal handling and per-instance rate limiting. A distributed or edge rate limit and provider spending limits are recommended before public traffic; the in-memory limiter is not shared between server instances. There are no tools, CRM writes, automatic bookings or email sends.
+
+Conversation and draft state are held in sessionStorage for the tab session and cleared with Start over. AI mode sends the conversation to OpenAI; guided mode processes it locally. Do not claim zero provider retention from store:false.
+
+Run node scripts/test-assistant.cjs for isolated contract, guided-flow and mocked endpoint tests. These tests make no external requests; live model quality and account access still require a configured API key. Official schema reference: https://developers.openai.com/api/docs/guides/structured-outputs

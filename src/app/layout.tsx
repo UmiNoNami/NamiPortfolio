@@ -12,6 +12,7 @@ import {
   DM_Mono,
 } from "next/font/google";
 import "./globals.css";
+import HomeWorld from "@/components/glass/HomeWorld";
 import ScrollProgress from "@/components/ScrollProgress";
 import CursorBadge from "@/components/CursorBadge";
 import Preloader from "@/components/Preloader";
@@ -181,12 +182,13 @@ const A11Y_INIT_SCRIPT = `
     if (settings.colorTheme === "dark" || settings.colorTheme === "high-contrast") {
       root.classList.add("dark");
     }
-    if (settings.colorTheme === "high-contrast") {
-      root.setAttribute("data-a11y-theme", "high-contrast");
+    if (settings.colorTheme === "high-contrast" || settings.colorTheme === "soft") {
+      root.setAttribute("data-a11y-theme", settings.colorTheme);
     }
     root.setAttribute("data-text-size", settings.textSize || "default");
     if (settings.reduceMotion) root.setAttribute("data-reduce-motion", "");
     if (settings.highlightLinks) root.setAttribute("data-highlight-links", "");
+    if (settings.reduceTransparency) root.setAttribute("data-reduce-transparency", "");
     if (settings.readableFont) root.setAttribute("data-readable-font", "");
   } catch (e) {}
 })();
@@ -227,7 +229,7 @@ export default function RootLayout({
                     Skip to content
                   </a>
                   <div id="top" />
-                  {children}
+                  <HomeWorld>{children}</HomeWorld>
                   <AboutModal />
                   <ResumeModal />
                   <PlaygroundModal />

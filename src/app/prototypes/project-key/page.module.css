@@ -1,0 +1,13 @@
+.page { min-height: 100svh; display: flex; flex-direction: column; background: #eee9df; color: #252a2c; padding: 30px 5vw 24px; }
+.header, .footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.header a { font-size: 22px; font-weight: 800; text-decoration: none; letter-spacing: -.05em; }
+.header a:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+.header span, .footer, .caption p { font: 500 10px/1.5 monospace; letter-spacing: .17em; }
+.study { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.caption { text-align: center; margin-top: 32px; }
+.caption p { color: #6b706e; margin: 0 0 10px; }
+.caption h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.05em; margin: 0; font-weight: 500; }
+.object { width: min(660px, 100%, 82vh); margin: -12px auto -18px; }
+.hint { margin: 0 0 35px; font-size: 12px; color: #626865; }
+.footer { color: #777b76; padding-top: 24px; }
+@media (max-width: 600px) { .page { padding: 22px 18px; } .object { margin: 5px -18px; width: calc(100% + 36px); } .caption { margin-top: 55px; } .footer { font-size: 9px; letter-spacing: .08em; } }

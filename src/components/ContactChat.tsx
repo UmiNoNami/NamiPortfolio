@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { playClick } from "@/lib/sound";
 import { SPRING_SOFT, SPRING_SNAPPY } from "@/lib/motion";
@@ -57,6 +58,7 @@ function UserBubble({ children }: { children: React.ReactNode }) {
 }
 
 export default function ContactChat() {
+  const pathname = usePathname();
   const { isOpen: open, toggle: toggleContext } = useContactChat();
   const [phase, setPhase] = useState<Phase>("topic");
   const [topic, setTopic] = useState<TopicId | null>(null);
@@ -302,7 +304,7 @@ export default function ContactChat() {
         )}
       </AnimatePresence>
 
-      <motion.button
+      {(!["/", "/projects", "/about", "/contact", "/playground"].includes(pathname) || open) && <motion.button
         type="button"
         onClick={toggle}
         aria-label={open ? "Close chat" : "Say hello"}
@@ -331,7 +333,7 @@ export default function ContactChat() {
             {open ? <CloseIcon className="h-5 w-5" /> : <ChatIcon className="h-5 w-5" />}
           </motion.span>
         </AnimatePresence>
-      </motion.button>
+      </motion.button>}
     </>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import RevealOnScroll from "../RevealOnScroll";
 import SectionHeading from "./SectionHeading";
 import { g4mColors } from "./tokens";
+import { useAccessibility } from "@/lib/accessibility";
 import { SPRING_SOFT } from "@/lib/motion";
 
 // ---------------------------------------------------------------------------
@@ -165,12 +166,16 @@ const MOCKUP_SLIDES = [
 ];
 
 function MockupCarousel() {
+  const osReduced = useReducedMotion();
+  const { settings } = useAccessibility();
+  const reduced = Boolean(osReduced) || settings.reduceMotion;
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    if (reduced) return;
     const t = setInterval(() => setIndex((i) => (i + 1) % MOCKUP_SLIDES.length), 4200);
     return () => clearInterval(t);
-  }, []);
+  }, [reduced]);
 
   const slide = MOCKUP_SLIDES[index];
 

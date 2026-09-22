@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { EASE_SMOOTH } from "@/lib/motion";
+import { usePathname } from "next/navigation";
 
 // "Hello" in four languages, each written in its own native script — kept
 // short deliberately: this used to cycle through eight words at 300ms each
@@ -23,6 +24,11 @@ const STORAGE_KEY = "nami-intro-seen";
  * second, well within what's needed to not feel like a loading gate.
  */
 export default function Preloader() {
+  const pathname = usePathname();
+  return ["/", "/about", "/projects", "/contact", "/playground"].includes(pathname) ? null : <LegacyPreloader />;
+}
+
+function LegacyPreloader() {
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [index, setIndex] = useState(0);

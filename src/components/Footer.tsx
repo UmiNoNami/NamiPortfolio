@@ -10,7 +10,7 @@ export default function Footer() {
         Built by Nami · {new Date().getFullYear()}
       </p>
       <motion.a
-        href="/#top"
+        href="#top"
         onClick={() => playClick()}
         className="mt-2 inline-block font-sans text-xs font-medium uppercase tracking-widest text-navy/40 hover:text-navy dark:text-cream/40 dark:hover:text-cream"
         whileHover={{ y: -3 }}

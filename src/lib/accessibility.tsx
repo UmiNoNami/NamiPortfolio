@@ -12,7 +12,7 @@ import {
 } from "react";
 import { MotionConfig } from "framer-motion";
 
-export type ColorTheme = "light" | "dark" | "high-contrast";
+export type ColorTheme = "light" | "soft" | "dark" | "high-contrast";
 export type TextSize = "small" | "default" | "large";
 
 export type AccessibilitySettings = {
@@ -21,6 +21,7 @@ export type AccessibilitySettings = {
   reduceMotion: boolean;
   highlightLinks: boolean;
   readableFont: boolean;
+  reduceTransparency: boolean;
 };
 
 // One object, one key — everything the accessibility panel controls lives
@@ -37,6 +38,7 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
   reduceMotion: false,
   highlightLinks: false,
   readableFont: false,
+  reduceTransparency: false,
 };
 
 function readInitialSettings(): AccessibilitySettings {
@@ -71,11 +73,12 @@ function readInitialSettings(): AccessibilitySettings {
 function applySettingsToDom(settings: AccessibilitySettings) {
   const root = document.documentElement;
   root.classList.toggle("dark", settings.colorTheme === "dark" || settings.colorTheme === "high-contrast");
-  if (settings.colorTheme === "high-contrast") {
-    root.setAttribute("data-a11y-theme", "high-contrast");
+  if (settings.colorTheme === "high-contrast" || settings.colorTheme === "soft") {
+    root.setAttribute("data-a11y-theme", settings.colorTheme);
   } else {
     root.removeAttribute("data-a11y-theme");
   }
+  root.toggleAttribute("data-reduce-transparency", settings.reduceTransparency);
   root.setAttribute("data-text-size", settings.textSize);
   root.toggleAttribute("data-reduce-motion", settings.reduceMotion);
   root.toggleAttribute("data-highlight-links", settings.highlightLinks);
@@ -84,6 +87,7 @@ function applySettingsToDom(settings: AccessibilitySettings) {
 
 const THEME_ANNOUNCE: Record<ColorTheme, string> = {
   light: "Light theme enabled.",
+  soft: "Soft light theme enabled.",
   dark: "Dark theme enabled.",
   "high-contrast": "High-contrast theme enabled.",
 };
@@ -101,6 +105,7 @@ type AccessibilityContextValue = {
   toggleReduceMotion: (value?: boolean) => void;
   toggleHighlightLinks: (value?: boolean) => void;
   toggleReadableFont: (value?: boolean) => void;
+  toggleReduceTransparency: (value: boolean) => void;
   reset: () => void;
   announcement: string;
 };
@@ -193,6 +198,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     [announce],
   );
 
+  const toggleReduceTransparency = useCallback((value: boolean) => {
+    setSettings(s => ({ ...s, reduceTransparency: value }));
+    announce(value ? "Solid surfaces enabled." : "Glass surfaces enabled.");
+  }, [announce]);
+
   const reset = useCallback(() => {
     setSettings(DEFAULT_SETTINGS);
     announce("Accessibility settings reset.");
@@ -206,6 +216,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       toggleReduceMotion,
       toggleHighlightLinks,
       toggleReadableFont,
+      toggleReduceTransparency,
       reset,
       announcement,
     }),
@@ -216,6 +227,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       toggleReduceMotion,
       toggleHighlightLinks,
       toggleReadableFont,
+      toggleReduceTransparency,
       reset,
       announcement,
     ],

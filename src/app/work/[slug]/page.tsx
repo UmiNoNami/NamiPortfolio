@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { projects, getProject } from "@/data/projects";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import SoundLink from "@/components/SoundLink";
-import Navbar from "@/components/Navbar";
+import SiteHeader from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import BrowserFrame from "@/components/mockups/BrowserFrame";
 import PhoneFrame from "@/components/mockups/PhoneFrame";
@@ -16,7 +16,6 @@ import KnockKnockCaseStudy from "@/components/knockknock/KnockKnockCaseStudy";
 import { ArrowRightIcon, GearIcon, LockIcon, OrbitIcon } from "@/components/ModernIcons";
 import { getProjectDisplay } from "@/lib/projectDisplay";
 import ProjectIconChip from "@/components/ProjectIconChip";
-import ProjectPageIntro from "@/components/ProjectPageIntro";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -77,15 +76,14 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       id="main-content"
       className="min-h-screen bg-canvas px-3 py-3 transition-colors duration-300 dark:bg-midnight sm:px-6 sm:py-6"
     >
-      {project.introWord && <ProjectPageIntro word={project.introWord} subtitle={project.introSubtitle ?? ""} />}
       <div className="mx-auto max-w-[1600px] rounded-[32px] bg-cream px-6 py-6 transition-colors duration-300 dark:bg-midnight-card sm:px-10 sm:py-8 lg:px-14">
-        <Navbar />
+        <SiteHeader />
 
         <div className="mx-auto max-w-4xl py-10 sm:py-14">
           {/* ---------------- HEADER ---------------- */}
           <RevealOnScroll>
             <SoundLink
-              href="/#work"
+              href="/projects"
               className="group inline-flex items-center gap-1.5 font-sans text-sm font-medium text-navy/55 transition-colors duration-300 hover:text-navy dark:text-cream/55 dark:hover:text-cream"
             >
               <ArrowRightIcon className="h-3.5 w-3.5 rotate-180 transition-transform duration-300 group-hover:-translate-x-1" />
@@ -93,7 +91,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             </SoundLink>
 
             <div className="relative mt-6">
-              <h1 className="max-w-3xl font-serif text-6xl italic leading-[0.95] text-navy sm:text-7xl dark:text-cream">
+              <h1 style={{ fontSize: "clamp(2rem, 8vw, 4.5rem)", overflowWrap: "anywhere" }} className="max-w-3xl font-serif text-6xl italic leading-[0.95] text-navy sm:text-7xl dark:text-cream">
                 {project.title}
               </h1>
 
@@ -124,7 +122,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               ))}
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <MetaColumn label="Role" value={project.role} />
               <MetaColumn label="Category" value={project.category} />
               <MetaColumn label="Year" value={project.year} />
@@ -239,7 +237,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
           {/* ---------------- MORE PROJECTS ---------------- */}
           <RevealOnScroll delay={0.15} className="mt-14">
             <SoundLink
-              href="/#work"
+              href="/projects"
               className="group inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 font-sans text-sm font-semibold text-cream shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg dark:bg-cream dark:text-navy"
             >
               More projects

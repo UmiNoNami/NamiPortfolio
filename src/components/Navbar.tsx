@@ -18,7 +18,7 @@ const underlineClass =
 const mobileItemClass =
   "flex min-h-[44px] items-center rounded-xl px-3 py-2 text-left outline-none transition-colors hover:bg-navy/5 focus-visible:bg-navy/10 focus-visible:ring-2 focus-visible:ring-navy/40 dark:hover:bg-cream/10 dark:focus-visible:bg-cream/15 dark:focus-visible:ring-cream/40";
 
-export default function Navbar() {
+export default function Navbar({ floatingHome = false }: { floatingHome?: boolean }) {
   const { open: openAbout } = useAboutModal();
   const { open: openResume } = useResumeModal();
   const { open: openPlayground } = useWindowManager();
@@ -36,7 +36,7 @@ export default function Navbar() {
       initial={{ opacity: 0, y: -14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: EASE_SMOOTH }}
-      className="grid grid-cols-2 items-center gap-6 py-2 md:grid-cols-[1fr_auto_1fr]"
+      className={`grid grid-cols-2 items-center gap-6 py-2 ${floatingHome ? "" : "md:grid-cols-[1fr_auto_1fr]"}`}
     >
       <motion.a
         href="/#top"
@@ -49,9 +49,9 @@ export default function Navbar() {
         NAMI.
       </motion.a>
 
-      <div className="hidden items-center gap-9 justify-self-center font-sans text-[15px] font-medium text-navy/80 dark:text-cream/75 md:flex">
+      {!floatingHome && <div className="hidden items-center gap-9 justify-self-center font-sans text-[15px] font-medium text-navy/80 dark:text-cream/75 md:flex">
         {/* About pops the notebook open on the same page instead of navigating. */}
-        <button
+        {!floatingHome && <button
           type="button"
           onClick={() => {
             playClick();
@@ -61,7 +61,7 @@ export default function Navbar() {
         >
           About
           <span className={underlineClass} />
-        </button>
+        </button>}
 
         {/* Resume opens inline on the same page instead of navigating to /resume.pdf. */}
         <button
@@ -77,7 +77,7 @@ export default function Navbar() {
         </button>
 
         {/* Playground pops the Dumpling Dash game window open on the same page. */}
-        <button
+        {!floatingHome && <button
           type="button"
           onClick={() => {
             playClick();
@@ -87,18 +87,18 @@ export default function Navbar() {
         >
           Playground
           <span className={underlineClass} />
-        </button>
+        </button>}
 
-        <button type="button" onClick={handleContact} className={linkClass}>
+        {!floatingHome && <button type="button" onClick={handleContact} className={linkClass}>
           Contact
           <span className={underlineClass} />
-        </button>
-      </div>
+        </button>}
+      </div>}
 
       <div className="flex items-center justify-self-end gap-2">
         {/* Mobile menu: the same actions as the desktop nav, since they were
             disappearing entirely below md with no fallback. */}
-        <div className="relative md:hidden">
+        {!floatingHome && <div className="relative md:hidden">
           <motion.button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -123,7 +123,7 @@ export default function Navbar() {
                 transition={SPRING_SNAPPY}
                 className="absolute right-0 top-12 z-[60] flex w-48 flex-col gap-1 rounded-2xl border border-navy/10 bg-cream p-2 font-sans text-[15px] font-medium text-navy shadow-lg dark:border-cream/10 dark:bg-ink dark:text-cream"
               >
-                <button
+                {!floatingHome && <button
                   type="button"
                   onClick={() => {
                     playClick();
@@ -133,7 +133,7 @@ export default function Navbar() {
                   className={mobileItemClass}
                 >
                   About
-                </button>
+                </button>}
                 <button
                   type="button"
                   onClick={() => {
@@ -145,7 +145,7 @@ export default function Navbar() {
                 >
                   Resume
                 </button>
-                <button
+                {!floatingHome && <button
                   type="button"
                   onClick={() => {
                     playClick();
@@ -155,14 +155,14 @@ export default function Navbar() {
                   className={mobileItemClass}
                 >
                   Playground
-                </button>
-                <button type="button" onClick={handleContact} className={mobileItemClass}>
+                </button>}
+                {!floatingHome && <button type="button" onClick={handleContact} className={mobileItemClass}>
                   Contact
-                </button>
+                </button>}
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div>}
 
         <AccessibilityPanel />
       </div>
