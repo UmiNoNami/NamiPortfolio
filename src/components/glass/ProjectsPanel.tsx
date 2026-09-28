@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { projects } from "@/data/projects";
 import styles from "./ProjectsPanel.module.css";
 
-const ordered = ["knockknock", "gear4music", "pluto"].map(slug => projects.find(project => project.slug === slug)!);
+const ordered = ["knockknock", "pluto", "gear4music"].map(slug => projects.find(project => project.slug === slug)!);
 const galleries: Record<string, { src: string; label: string }[]> = {
   knockknock: [{ src: "/knokknok1.png", label: "Roommate matching app" }],
   gear4music: [{ src: "/gear.png", label: "Commerce redesigned" }, { src: "/gear/mockup1.png", label: "Shopping experience" }, { src: "/gear/mockup2.png", label: "Product discovery" }, { src: "/gear/responsive.png", label: "Across devices" }],
