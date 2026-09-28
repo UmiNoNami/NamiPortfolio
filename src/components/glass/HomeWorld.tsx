@@ -77,10 +77,9 @@ export default function HomeWorld({ children }: { children: ReactNode }) {
       eyebrow={`NAMI / ${selected === "projects" ? "SELECTED WORK" : selected.toUpperCase()}`}
       footer={<><span>{panel.note}</span><span>NAMI STUDIO <i> / </i> {String(Object.keys(panels).indexOf(selected)+1).padStart(2,"0")}</span></>}
       title={panel.title} description={panel.description}
-      // Works, About and Contact already have their entry buttons on the
-      // home screen, so the in-panel title/nav header would be redundant.
-      // Playground keeps its header.
-      hideHeader={selected !== "playground"}>
+      // Every panel already has its entry button on the home screen, so the
+      // in-panel title/nav header is redundant everywhere, including Playground.
+      hideHeader>
       <Content key={selected} />
     </GlassOverlay>
   </>;

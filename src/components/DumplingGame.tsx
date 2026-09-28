@@ -553,7 +553,7 @@ export default function DumplingGame() {
     "flex items-center justify-center rounded-full bg-navy text-cream shadow-md transition-transform active:scale-95 dark:bg-cream dark:text-navy";
 
   return (
-    <div className="flex w-full max-w-[480px] flex-col items-center gap-3">
+    <div data-dumpling-ui className="flex w-full max-w-[420px] flex-col items-center gap-3">
       <div
         className="relative w-full overflow-hidden rounded-xl shadow-inner"
         style={{ aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
