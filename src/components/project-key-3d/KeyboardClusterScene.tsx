@@ -77,7 +77,7 @@ function Assembly(props: Props) {
 }
 
 export default function KeyboardClusterScene(props: Props) {
-  return <Canvas shadows="soft" frameloop="demand" dpr={[1, props.compact ? 1.25 : 1.5]}
+  return <Canvas shadows="soft" frameloop="demand" dpr={[1, props.compact ? 2 : 1.5]}
     events={() => ({ enabled: false, priority: 0 })}
     camera={{ ...CLUSTER_CAMERA, near: .1, far: 80 }}
     gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}

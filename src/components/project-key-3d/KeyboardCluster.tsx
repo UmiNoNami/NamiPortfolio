@@ -32,6 +32,7 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
   const outlines = useRef<(SVGPolygonElement | null)[]>([]);
   const pointer = useRef({ x: 0, y: 0 });
   const cancelled = useRef(false);
+  const pointerStart = useRef({ x: 0, y: 0 });
   const timer = useRef<ReturnType<typeof setTimeout>>();
   const onReady = useCallback(() => setReady(true), []);
   const onError = useCallback(() => { setFailed(true); setReady(false); }, []);
@@ -69,8 +70,25 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
     {CLUSTER_KEYS.map((key, i) => <button key={key.id} ref={el => { controls.current[i] = el; }} className={styles.key}
       style={{ clipPath: `polygon(${CLUSTER_OUTLINES[i].split(" ").map(p => p.split(",").join("% ") + "%").join(",")})` }}
       data-key={key.id} type="button" aria-label={`Open ${key.id}`}
-      onPointerDown={event => { if (event.button !== 0 || !event.isPrimary) return; cancelled.current = false; setPressed(key.id); }}
-      onPointerUp={() => setPressed(null)} onPointerLeave={() => { cancelled.current = true; setPressed(null); }}
+      onPointerDown={event => {
+        if (event.button !== 0 || !event.isPrimary) return;
+        cancelled.current = false;
+        pointerStart.current = { x: event.clientX, y: event.clientY };
+        // Keep tracking this pointer even if the live 3D cluster silhouette
+        // (its clip-path is re-projected every frame while idling) drifts out
+        // from under a held finger — without this, brief pointerleave events
+        // caused by that drift were silently swallowing taps on mobile.
+        try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
+        setPressed(key.id);
+      }}
+      onPointerMove={event => {
+        if (cancelled.current || pressed !== key.id) return;
+        const dx = event.clientX - pointerStart.current.x;
+        const dy = event.clientY - pointerStart.current.y;
+        if (Math.hypot(dx, dy) > 24) { cancelled.current = true; setPressed(null); }
+      }}
+      onPointerUp={event => { setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
+      onPointerLeave={() => setPressed(null)}
       onPointerCancel={() => { cancelled.current = true; setPressed(null); }}
       onBlur={() => setPressed(null)}
       onKeyDown={event => {
