@@ -546,7 +546,7 @@ export default function DumplingGame() {
   };
 
   const primaryBtn =
-    "rounded-full bg-cream px-5 py-2 font-sans text-sm font-semibold text-navy shadow-md transition-transform hover:-translate-y-0.5";
+    "rounded-full border border-cream/30 bg-navy px-5 py-2 font-sans text-sm font-semibold text-cream shadow-md transition-transform hover:-translate-y-0.5 hover:bg-midnight";
   const ghostBtn =
     "rounded-full border border-navy/15 bg-white/70 px-3 py-1 font-sans text-xs font-medium text-navy/80 backdrop-blur transition-colors hover:bg-white dark:border-cream/15 dark:bg-midnight-card/70 dark:text-cream/80";
   const padBtn =
