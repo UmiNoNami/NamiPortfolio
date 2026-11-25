@@ -1,15 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import {
-  Inter,
-  Pixelify_Sans,
-  Space_Mono,
-  Plus_Jakarta_Sans,
-  DM_Sans,
-  Big_Shoulders_Display,
-  Figtree,
-  DM_Mono,
-} from "next/font/google";
 import "./globals.css";
 import HomeWorld from "@/components/glass/HomeWorld";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -25,65 +15,26 @@ import { ResumeModalProvider } from "@/lib/resumeModal";
 import { WindowManagerProvider } from "@/lib/windowManager";
 import { ContactChatProvider } from "@/lib/contactChat";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
-});
-
-// Playfair Display is loaded with a plain Google Fonts <link> in <head> (see
-// below) rather than next/font: next/font in Next 14.2.5 crashes at build time
-// when Google serves this family from an extension-less file URL
-// ("Cannot read properties of null (reading '1')"). --font-serif is set in
-// globals.css.
-
-// Kept loaded (unused on the current homepage) so the still-linked retro
-// desktop components elsewhere in the codebase don't break if reintroduced.
-const pixelify = Pixelify_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-pixel",
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-mono",
-});
-
-// Used only inside the Pluto case study's design-system spec (that
-// project's own type pairing), not the rest of the site.
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  variable: "--font-jakarta",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-dm",
-});
-
-// Used only inside the Gear4music case study's design-system spec (that
-// project's own type pairing), not the rest of the site.
-const bigShoulders = Big_Shoulders_Display({
-  subsets: ["latin"],
-  weight: ["700", "800", "900"],
-  variable: "--font-big-shoulders",
-});
-
-const figtree = Figtree({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-figtree",
-});
-
-const dmMono = DM_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-dm-mono",
-});
+// Fonts are loaded with one plain Google Fonts <link> in <head> (below) and
+// mapped to the --font-* variables in globals.css. next/font/google in Next
+// 14.2.5 crashes during `next build` when Google serves a family from an
+// extension-less file URL ("Cannot read properties of null (reading '1')").
+// Families: Inter (site sans), Playfair Display (serif accents), Pixelify Sans
+// + Space Mono (retro desktop components), Plus Jakarta Sans (Pluto case
+// study), DM Sans, Big Shoulders Display (Gear4music case study), Figtree,
+// DM Mono.
+const GOOGLE_FONTS_HREF =
+  "https://fonts.googleapis.com/css2" +
+  "?family=Inter:wght@400;500;600;700;800" +
+  "&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700" +
+  "&family=Pixelify+Sans:wght@400;500;600;700" +
+  "&family=Space+Mono:wght@400;700" +
+  "&family=Plus+Jakarta+Sans:wght@400;600;700;800" +
+  "&family=DM+Sans:wght@300;400;500;600;700" +
+  "&family=Big+Shoulders+Display:wght@700;800;900" +
+  "&family=Figtree:wght@400;500;600;700" +
+  "&family=DM+Mono:wght@400;500" +
+  "&display=swap";
 
 const SITE_URL = "https://heyitsnami.com";
 const SITE_TITLE = "Nami — UI/UX Designer & Front-End Developer in Dublin";
@@ -205,7 +156,7 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
+          href={GOOGLE_FONTS_HREF}
         />
         <Script id="a11y-init" strategy="beforeInteractive">
           {A11Y_INIT_SCRIPT}
@@ -217,7 +168,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${pixelify.variable} ${spaceMono.variable} ${plusJakarta.variable} ${dmSans.variable} ${bigShoulders.variable} ${figtree.variable} ${dmMono.variable} bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
+        className={`bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
       >
         <AccessibilityProvider>
           <AboutModalProvider>
