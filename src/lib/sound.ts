@@ -207,23 +207,32 @@ type ClickSpec = {
   bounces: [number, number][]; // [time s, amplitude]
   resonances: [number, number, number][]; // [Hz, decay s, amplitude]
   noiseDecay: number;
+  noise: number; // level of the click transient
+  bright: number; // 0 = muffled, 1 = crisp/glassy
   body: number; // amplitude of the low "thock"
   length: number;
 };
 
+// Tuned to a deep mechanical-keyboard "thock": most of the energy sits below
+// 1.5 kHz (the keycap and case), with only a muffled click on top — not the
+// bright, glassy tick of a mouse.
 const PRESS: ClickSpec = {
-  bounces: [[0, 1], [0.005, 0.45], [0.0095, 0.15]],
-  resonances: [[1700, 0.012, 0.32], [3000, 0.008, 0.34], [5000, 0.004, 0.22]],
-  noiseDecay: 0.0022,
-  body: 0.6,
-  length: 0.09,
+  bounces: [[0, 1], [0.006, 0.3]],
+  resonances: [[380, 0.022, 0.55], [820, 0.012, 0.35], [1500, 0.006, 0.18]],
+  noiseDecay: 0.003,
+  noise: 0.7,
+  bright: 0.3,
+  body: 0.7,
+  length: 0.1,
 };
 const RELEASE: ClickSpec = {
-  bounces: [[0, 1], [0.004, 0.32]],
-  resonances: [[2200, 0.008, 0.26], [3700, 0.006, 0.3], [5900, 0.003, 0.2]],
-  noiseDecay: 0.0016,
-  body: 0.18,
-  length: 0.06,
+  bounces: [[0, 1]],
+  resonances: [[520, 0.014, 0.45], [1100, 0.008, 0.3], [2000, 0.004, 0.12]],
+  noiseDecay: 0.002,
+  noise: 0.7,
+  bright: 0.3,
+  body: 0.3,
+  length: 0.07,
 };
 
 function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
@@ -232,7 +241,7 @@ function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
   const buf = ctx.createBuffer(1, n, sr);
   const out = buf.getChannelData(0);
   const detune = 0.94 + Math.random() * 0.12;
-  let hpPrevIn = 0, hpPrevOut = 0, lp = 0;
+  let hpPrevIn = 0, hpPrevOut = 0, lp = 0, mid = 0;
   const hpA = 0.93; // gentle high-pass on the noise so it stays crisp
   for (let i = 0; i < n; i++) {
     const t = i / sr;
@@ -240,13 +249,15 @@ function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
     const hp = hpA * (hpPrevOut + white - hpPrevIn);
     hpPrevIn = white; hpPrevOut = hp;
     lp += 0.06 * (white - lp); // low-passed noise for the body
+    mid += 0.15 * (white - mid); // darker noise for a muffled click
+    const clickNoise = spec.noise * (spec.bright * hp + (1 - spec.bright) * mid * 2.2);
     let v = 0;
     for (const [t0, a] of spec.bounces) {
       if (t < t0) continue;
       const dt = t - t0;
       let ring = 0;
       for (const [f, d, ra] of spec.resonances) ring += ra * Math.sin(2 * Math.PI * f * detune * dt) * Math.exp(-dt / d);
-      v += a * (hp * Math.exp(-dt / spec.noiseDecay) + ring);
+      v += a * (clickNoise * Math.exp(-dt / spec.noiseDecay) + ring);
     }
     v += spec.body * lp * 5 * Math.exp(-t / 0.022);
     out[i] = v;
@@ -312,10 +323,10 @@ function playSpec(spec: ClickSpec, level: number) {
 
 /** Key pressed down: crisp click with a little thock. */
 export function playKeyDown() {
-  playSpec(PRESS, 0.85);
+  playSpec(PRESS, 0.9);
 }
 
 /** Key released: lighter, higher tick. */
 export function playKeyUp() {
-  playSpec(RELEASE, 0.55);
+  playSpec(RELEASE, 0.5);
 }
