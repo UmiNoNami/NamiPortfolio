@@ -11,10 +11,10 @@ import PlaygroundPanel from "./PlaygroundPanel";
 import styles from "./GlassOverlay.module.css";
 
 const panels = {
-  projects: { title:"PROJECTS", description:"Selected work in product design and development.", component:ProjectsPanel, note:"Design meets development." },
+  projects: { title:"PROJECTS", description:"Selected work in product design, graphic design and development.", component:ProjectsPanel, note:"Design meets development." },
   about: { title:"ABOUT", description:"Product thinking. Precise design. Considered development.", component:AboutPanel, note:"Dublin, Ireland / Design & development" },
   contact: { title:"CONTACT", description:"An idea, a question, a hello. Start here.", component:ContactPanel, note:"Good conversations make good things." },
-  playground: { title:"PLAYGROUND", description:"Interaction, motion, graphic design, and creative development.", component:PlaygroundPanel, note:"Made for the joy of making." },
+  playground: { title:"PLAYGROUND", description:"Interaction, motion, and creative development.", component:PlaygroundPanel, note:"Made for the joy of making." },
 } as const;
 type PanelId = keyof typeof panels;
 function panelAt(path: string | null): PanelId | null {
