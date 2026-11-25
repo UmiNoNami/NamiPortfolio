@@ -26,7 +26,9 @@
   .dot { width: 8px; height: 8px; }
   .manifesto { top: 111px; left: 6%; font-size: 8px; }
   .location { top: 120px; left: auto; right: 6%; font-size: 8px; }
-  .scene { width: min(110vw, 580px); height: 360px; left: 50%; top: 183px; transform: translateX(-50%); }
+  /* Bigger keys on phones: wider scene (the cluster sits in its middle, so the
+     overflow is just empty canvas, clipped by .home). */
+  .scene { width: min(150vw, 660px); height: 440px; left: 50%; top: 160px; transform: translateX(-50%); }
   .intro { left: 6%; bottom: 46px; }
   .intro h1 { font-size: 54px; margin-bottom: 20px; }
   .intro .micro { font-size: 9px; letter-spacing: .25em; }
