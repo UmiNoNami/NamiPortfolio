@@ -195,74 +195,102 @@ export function playLose() {
   }
 }
 
-// --- Mechanical key sounds (homepage 3D keys) ------------------------------
-// A short burst of filtered noise for the "clack" of the keycap plus a low
-// sine thump for the switch bottoming out. Press and release are separate so
-// the keys sound like a real mechanical keyboard: thock down, lighter tick up.
-let noiseBuffer: AudioBuffer | null = null;
-function getNoise(ctx: AudioContext) {
-  if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer;
-  const length = Math.floor(ctx.sampleRate * 0.08);
-  noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
-  const data = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
-  return noiseBuffer;
+// --- Key / mouse click sounds (homepage 3D keys) --------------------------
+// Modelled on a real switch rather than a musical tone: each click is a very
+// short broadband transient (≈1 ms of noise) exciting a few fast-decaying
+// plastic resonances, followed a few ms later by a smaller second contact
+// "bounce" — the double-tick you hear in a mouse microswitch. Press adds a
+// little low body (the keycap bottoming out); release is lighter and higher.
+// Samples are computed once into AudioBuffers (a few random variants each, so
+// repeated presses don't sound identical) and then just played back.
+type ClickSpec = {
+  bounces: [number, number][]; // [time s, amplitude]
+  resonances: [number, number, number][]; // [Hz, decay s, amplitude]
+  noiseDecay: number;
+  body: number; // amplitude of the low "thock"
+  length: number;
+};
+
+const PRESS: ClickSpec = {
+  bounces: [[0, 1], [0.0045, 0.38], [0.009, 0.12]],
+  resonances: [[1900, 0.006, 0.28], [3300, 0.004, 0.3], [5400, 0.0022, 0.22]],
+  noiseDecay: 0.0011,
+  body: 0.35,
+  length: 0.06,
+};
+const RELEASE: ClickSpec = {
+  bounces: [[0, 1], [0.0035, 0.28]],
+  resonances: [[2300, 0.004, 0.22], [3900, 0.003, 0.28], [6200, 0.0018, 0.2]],
+  noiseDecay: 0.0008,
+  body: 0.08,
+  length: 0.04,
+};
+
+function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
+  const sr = ctx.sampleRate;
+  const n = Math.floor(sr * spec.length);
+  const buf = ctx.createBuffer(1, n, sr);
+  const out = buf.getChannelData(0);
+  const detune = 0.94 + Math.random() * 0.12;
+  let hpPrevIn = 0, hpPrevOut = 0, lp = 0;
+  const hpA = 0.93; // gentle high-pass on the noise so it stays crisp
+  for (let i = 0; i < n; i++) {
+    const t = i / sr;
+    const white = Math.random() * 2 - 1;
+    const hp = hpA * (hpPrevOut + white - hpPrevIn);
+    hpPrevIn = white; hpPrevOut = hp;
+    lp += 0.06 * (white - lp); // low-passed noise for the body
+    let v = 0;
+    for (const [t0, a] of spec.bounces) {
+      if (t < t0) continue;
+      const dt = t - t0;
+      let ring = 0;
+      for (const [f, d, ra] of spec.resonances) ring += ra * Math.sin(2 * Math.PI * f * detune * dt) * Math.exp(-dt / d);
+      v += a * (hp * Math.exp(-dt / spec.noiseDecay) + ring);
+    }
+    v += spec.body * lp * 4 * Math.exp(-t / 0.014);
+    out[i] = v;
+  }
+  // Tiny fade-in/out to avoid DC clicks, then normalise.
+  let peak = 0;
+  for (let i = 0; i < n; i++) {
+    const edge = Math.min(1, i / 8, (n - 1 - i) / 64);
+    out[i] *= edge;
+    peak = Math.max(peak, Math.abs(out[i]));
+  }
+  if (peak > 0) for (let i = 0; i < n; i++) out[i] = (out[i] / peak) * 0.9;
+  return buf;
 }
 
-function noiseClick(ctx: AudioContext, at: number, freq: number, q: number, level: number, decay: number) {
-  const src = ctx.createBufferSource();
-  src.buffer = getNoise(ctx);
-  src.playbackRate.value = 0.9 + Math.random() * 0.2;
-  const band = ctx.createBiquadFilter();
-  band.type = "bandpass";
-  band.frequency.setValueAtTime(freq, at);
-  band.Q.setValueAtTime(q, at);
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, at);
-  gain.gain.exponentialRampToValueAtTime(level, at + 0.002);
-  gain.gain.exponentialRampToValueAtTime(0.0001, at + decay);
-  src.connect(band);
-  band.connect(gain);
-  gain.connect(ctx.destination);
-  src.start(at);
-  src.stop(at + decay + 0.01);
+const clickBank = new Map<ClickSpec, AudioBuffer[]>();
+function playSpec(spec: ClickSpec, level: number) {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    let bank = clickBank.get(spec);
+    if (!bank || bank[0].sampleRate !== ctx.sampleRate) {
+      bank = [0, 1, 2, 3].map(() => renderClick(ctx, spec));
+      clickBank.set(spec, bank);
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = bank[Math.floor(Math.random() * bank.length)];
+    src.playbackRate.value = 0.97 + Math.random() * 0.06;
+    const gain = ctx.createGain();
+    gain.gain.value = level;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  } catch {
+    // Sound is a nice-to-have; never let it break a click.
+  }
 }
 
-/** Key pressed down: a solid "thock". */
+/** Key pressed down: crisp click with a little thock. */
 export function playKeyDown() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    const pitch = 0.94 + Math.random() * 0.12;
-
-    noiseClick(ctx, now, 2300 * pitch, 1.1, 0.32, 0.035);
-
-    const thump = ctx.createOscillator();
-    thump.type = "sine";
-    thump.frequency.setValueAtTime(170 * pitch, now);
-    thump.frequency.exponentialRampToValueAtTime(70, now + 0.07);
-    const tg = ctx.createGain();
-    tg.gain.setValueAtTime(0.0001, now);
-    tg.gain.exponentialRampToValueAtTime(0.22, now + 0.004);
-    tg.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-    thump.connect(tg);
-    tg.connect(ctx.destination);
-    thump.start(now);
-    thump.stop(now + 0.1);
-  } catch {
-    // Sound is a nice-to-have; never let it break a click.
-  }
+  playSpec(PRESS, 0.5);
 }
 
-/** Key released: a lighter, higher "tick". */
+/** Key released: lighter, higher tick. */
 export function playKeyUp() {
-  try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    noiseClick(ctx, now, 3800 * (0.95 + Math.random() * 0.1), 1.4, 0.13, 0.022);
-  } catch {
-    // Sound is a nice-to-have; never let it break a click.
-  }
+  playSpec(RELEASE, 0.3);
 }
