@@ -18,17 +18,22 @@ function offset(index: number, active: number) {
   return d;
 }
 
+// Size and opacity by distance from the front: the front poster is clearly
+// the hero, the next ones wait close behind, the far side of the ring fades.
+const SCALE = [1, 0.7, 0.54, 0.44, 0.39, 0.37];
+const OPACITY = [1, 0.9, 0.62, 0.36, 0.2, 0.12];
+
 /** Place a poster on a ring seen from slightly above: front = big and sharp,
  * the rest shrink, dim and tuck behind as they go round the circle. */
 function ringStyle(d: number): React.CSSProperties {
   const a = (d * STEP * Math.PI) / 180;
+  const n = Math.min(Math.abs(d), SCALE.length - 1);
   const depth = (Math.cos(a) + 1) / 2; // 1 = front, 0 = back
-  const scale = 0.42 + 0.58 * Math.pow(depth, 1.5);
   return {
-    transform: `translate(-50%, -50%) translateX(calc(${Math.sin(a).toFixed(3)} * var(--ring-radius))) translateY(${((1 - depth) * -9).toFixed(1)}%) scale(${scale.toFixed(3)})`,
-    zIndex: Math.round(depth * 100),
-    opacity: d === 0 ? 1 : +(0.25 + 0.6 * depth).toFixed(2),
-    filter: d === 0 ? "none" : `saturate(${(0.55 + 0.45 * depth).toFixed(2)}) brightness(${(0.8 + 0.2 * depth).toFixed(2)})`,
+    transform: `translate(-50%, -50%) translateX(calc(${Math.sin(a).toFixed(3)} * var(--ring-radius))) translateY(${((1 - depth) * -14).toFixed(1)}%) scale(${SCALE[n]})`,
+    zIndex: 100 - n * 10,
+    opacity: OPACITY[n],
+    filter: d === 0 ? "none" : `saturate(${(0.5 + 0.5 * depth).toFixed(2)}) brightness(${(0.78 + 0.22 * depth).toFixed(2)})`,
   };
 }
 
