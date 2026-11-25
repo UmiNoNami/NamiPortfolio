@@ -195,99 +195,33 @@ export function playLose() {
   }
 }
 
-// --- Key / mouse click sounds (homepage 3D keys) --------------------------
-// Modelled on a real switch rather than a musical tone: each click is a very
-// short broadband transient (≈1 ms of noise) exciting a few fast-decaying
-// plastic resonances, followed a few ms later by a smaller second contact
-// "bounce" — the double-tick you hear in a mouse microswitch. Press adds a
-// little low body (the keycap bottoming out); release is lighter and higher.
-// Samples are computed once into AudioBuffers (a few random variants each, so
-// repeated presses don't sound identical) and then just played back.
-type ClickSpec = {
-  bounces: [number, number][]; // [time s, amplitude]
-  resonances: [number, number, number][]; // [Hz, decay s, amplitude]
-  noiseDecay: number;
-  noise: number; // level of the click transient
-  bright: number; // 0 = muffled, 1 = crisp/glassy
-  body: number; // amplitude of the low "thock"
-  length: number;
-};
+// --- Keyboard key sounds (homepage 3D keys) --------------------------------
+// A real recorded button press, split into its two halves: /sounds/key-down.wav
+// (key going down) and /sounds/key-up.wav (key springing back). WAV rather than
+// MP3 because MP3 adds encoder padding at the start, which would make the
+// click lag behind the press. Both are ~15 KB and decoded once.
+const KEY_SOUNDS = { down: "/sounds/key-down.wav", up: "/sounds/key-up.wav" } as const;
+type KeySound = keyof typeof KEY_SOUNDS;
+const keyBuffers: Partial<Record<KeySound, AudioBuffer>> = {};
+let keyLoad: Promise<void> | null = null;
 
-// Tuned to a deep mechanical-keyboard "thock": most of the energy sits below
-// 1.5 kHz (the keycap and case), with only a muffled click on top — not the
-// bright, glassy tick of a mouse.
-const PRESS: ClickSpec = {
-  bounces: [[0, 1], [0.006, 0.3]],
-  resonances: [[380, 0.022, 0.55], [820, 0.012, 0.35], [1500, 0.006, 0.18]],
-  noiseDecay: 0.003,
-  noise: 0.7,
-  bright: 0.3,
-  body: 0.7,
-  length: 0.1,
-};
-const RELEASE: ClickSpec = {
-  bounces: [[0, 1]],
-  resonances: [[520, 0.014, 0.45], [1100, 0.008, 0.3], [2000, 0.004, 0.12]],
-  noiseDecay: 0.002,
-  noise: 0.7,
-  bright: 0.3,
-  body: 0.3,
-  length: 0.07,
-};
-
-function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
-  const sr = ctx.sampleRate;
-  const n = Math.floor(sr * spec.length);
-  const buf = ctx.createBuffer(1, n, sr);
-  const out = buf.getChannelData(0);
-  const detune = 0.94 + Math.random() * 0.12;
-  let hpPrevIn = 0, hpPrevOut = 0, lp = 0, mid = 0;
-  const hpA = 0.93; // gentle high-pass on the noise so it stays crisp
-  for (let i = 0; i < n; i++) {
-    const t = i / sr;
-    const white = Math.random() * 2 - 1;
-    const hp = hpA * (hpPrevOut + white - hpPrevIn);
-    hpPrevIn = white; hpPrevOut = hp;
-    lp += 0.06 * (white - lp); // low-passed noise for the body
-    mid += 0.15 * (white - mid); // darker noise for a muffled click
-    const clickNoise = spec.noise * (spec.bright * hp + (1 - spec.bright) * mid * 2.2);
-    let v = 0;
-    for (const [t0, a] of spec.bounces) {
-      if (t < t0) continue;
-      const dt = t - t0;
-      let ring = 0;
-      for (const [f, d, ra] of spec.resonances) ring += ra * Math.sin(2 * Math.PI * f * detune * dt) * Math.exp(-dt / d);
-      v += a * (clickNoise * Math.exp(-dt / spec.noiseDecay) + ring);
-    }
-    v += spec.body * lp * 5 * Math.exp(-t / 0.022);
-    out[i] = v;
+function loadKeySounds(audio: AudioContext) {
+  if (!keyLoad) {
+    keyLoad = Promise.all(
+      (Object.keys(KEY_SOUNDS) as KeySound[]).map(async (name) => {
+        const res = await fetch(KEY_SOUNDS[name]);
+        keyBuffers[name] = await audio.decodeAudioData(await res.arrayBuffer());
+      }),
+    ).then(() => undefined).catch(() => { keyLoad = null; });
   }
-  // Tiny fade-in/out to avoid DC clicks, then normalise.
-  let peak = 0;
-  for (let i = 0; i < n; i++) {
-    const edge = Math.min(1, i / 8, (n - 1 - i) / 64);
-    out[i] *= edge;
-    peak = Math.max(peak, Math.abs(out[i]));
-  }
-  if (peak > 0) for (let i = 0; i < n; i++) out[i] = (out[i] / peak) * 0.9;
-  return buf;
+  return keyLoad;
 }
 
-const clickBank = new Map<ClickSpec, AudioBuffer[]>();
-function bankFor(ctx: AudioContext, spec: ClickSpec) {
-  let bank = clickBank.get(spec);
-  if (!bank || bank[0].sampleRate !== ctx.sampleRate) {
-    bank = [0, 1, 2, 3].map(() => renderClick(ctx, spec));
-    clickBank.set(spec, bank);
-  }
-  return bank;
-}
-
-/** Create the audio context and render the click sounds ahead of time (e.g.
- * when the pointer first moves over the keys). Opening the audio device can
- * block the page for a few hundred ms on some systems — doing it on the first
- * press made that press stutter. The context starts suspended and is resumed
- * by the first real press. */
+/** Create the audio context and fetch/decode the key sounds ahead of time
+ * (on first hover, or shortly after load on touch devices). Opening the audio
+ * device can block the page for a few hundred ms on some systems — doing it on
+ * the first press made that press stutter. The context starts suspended and is
+ * resumed by the first real press. */
 export function warmUpKeySounds() {
   try {
     if (typeof window === "undefined") return;
@@ -296,37 +230,41 @@ export function warmUpKeySounds() {
       if (!AudioCtx) return;
       ctx = new AudioCtx();
     }
-    bankFor(ctx, PRESS);
-    bankFor(ctx, RELEASE);
+    void loadKeySounds(ctx);
   } catch {
     // Optional optimisation only.
   }
 }
 
-function playSpec(spec: ClickSpec, level: number) {
+function playKeySound(name: KeySound, level: number) {
   try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const bank = bankFor(ctx, spec);
-    const src = ctx.createBufferSource();
-    src.buffer = bank[Math.floor(Math.random() * bank.length)];
-    src.playbackRate.value = 0.97 + Math.random() * 0.06;
-    const gain = ctx.createGain();
-    gain.gain.value = level;
-    src.connect(gain);
-    gain.connect(ctx.destination);
-    src.start();
+    const audio = getAudioContext();
+    if (!audio) return;
+    const play = () => {
+      const buffer = keyBuffers[name];
+      if (!buffer) return;
+      const src = audio.createBufferSource();
+      src.buffer = buffer;
+      src.playbackRate.value = 0.98 + Math.random() * 0.04; // tiny variation between presses
+      const gain = audio.createGain();
+      gain.gain.value = level;
+      src.connect(gain);
+      gain.connect(audio.destination);
+      src.start();
+    };
+    if (keyBuffers[name]) play();
+    else void loadKeySounds(audio).then(play);
   } catch {
     // Sound is a nice-to-have; never let it break a click.
   }
 }
 
-/** Key pressed down: crisp click with a little thock. */
+/** Key pressed down. */
 export function playKeyDown() {
-  playSpec(PRESS, 0.9);
+  playKeySound("down", 0.8);
 }
 
-/** Key released: lighter, higher tick. */
+/** Key released. */
 export function playKeyUp() {
-  playSpec(RELEASE, 0.5);
+  playKeySound("up", 0.6);
 }
