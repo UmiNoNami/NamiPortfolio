@@ -6,6 +6,7 @@ import { Component, useCallback, useEffect, useRef, useState, type ReactNode } f
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { useAccessibility } from "@/lib/accessibility";
+import { playKeyDown, playKeyUp } from "@/lib/sound";
 import { CLUSTER_KEYS, CLUSTER_OUTLINES, type ClusterKeyId } from "./clusterConfig";
 import styles from "./KeyboardCluster.module.css";
 
@@ -80,6 +81,7 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
         // caused by that drift were silently swallowing taps on mobile.
         try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
         setPressed(key.id);
+        playKeyDown();
       }}
       onPointerMove={event => {
         if (cancelled.current || pressed !== key.id) return;
@@ -87,16 +89,16 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
         const dy = event.clientY - pointerStart.current.y;
         if (Math.hypot(dx, dy) > 24) { cancelled.current = true; setPressed(null); }
       }}
-      onPointerUp={event => { setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
+      onPointerUp={event => { if (pressed === key.id && !cancelled.current) playKeyUp(); setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
       onPointerLeave={() => setPressed(null)}
       onPointerCancel={() => { cancelled.current = true; setPressed(null); }}
       onBlur={() => setPressed(null)}
       onKeyDown={event => {
         if (event.key !== "Enter" && event.key !== " ") return;
-        event.preventDefault(); if (!event.repeat) setPressed(key.id);
+        event.preventDefault(); if (!event.repeat) { setPressed(key.id); playKeyDown(); }
       }} onKeyUp={event => {
         if ((event.key === "Enter" || event.key === " ") && pressed === key.id) {
-          event.preventDefault(); setPressed(null); activate(key.id);
+          event.preventDefault(); setPressed(null); playKeyUp(); activate(key.id);
         }
       }} onClick={event => { if (event.detail === 0 || !cancelled.current) activate(key.id); }}>
       <span className={styles.srOnly}>{key.label}</span>

@@ -194,3 +194,75 @@ export function playLose() {
     // Sound is a nice-to-have; never let it break the game.
   }
 }
+
+// --- Mechanical key sounds (homepage 3D keys) ------------------------------
+// A short burst of filtered noise for the "clack" of the keycap plus a low
+// sine thump for the switch bottoming out. Press and release are separate so
+// the keys sound like a real mechanical keyboard: thock down, lighter tick up.
+let noiseBuffer: AudioBuffer | null = null;
+function getNoise(ctx: AudioContext) {
+  if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer;
+  const length = Math.floor(ctx.sampleRate * 0.08);
+  noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+  return noiseBuffer;
+}
+
+function noiseClick(ctx: AudioContext, at: number, freq: number, q: number, level: number, decay: number) {
+  const src = ctx.createBufferSource();
+  src.buffer = getNoise(ctx);
+  src.playbackRate.value = 0.9 + Math.random() * 0.2;
+  const band = ctx.createBiquadFilter();
+  band.type = "bandpass";
+  band.frequency.setValueAtTime(freq, at);
+  band.Q.setValueAtTime(q, at);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(level, at + 0.002);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + decay);
+  src.connect(band);
+  band.connect(gain);
+  gain.connect(ctx.destination);
+  src.start(at);
+  src.stop(at + decay + 0.01);
+}
+
+/** Key pressed down: a solid "thock". */
+export function playKeyDown() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const pitch = 0.94 + Math.random() * 0.12;
+
+    noiseClick(ctx, now, 2300 * pitch, 1.1, 0.32, 0.035);
+
+    const thump = ctx.createOscillator();
+    thump.type = "sine";
+    thump.frequency.setValueAtTime(170 * pitch, now);
+    thump.frequency.exponentialRampToValueAtTime(70, now + 0.07);
+    const tg = ctx.createGain();
+    tg.gain.setValueAtTime(0.0001, now);
+    tg.gain.exponentialRampToValueAtTime(0.22, now + 0.004);
+    tg.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+    thump.connect(tg);
+    tg.connect(ctx.destination);
+    thump.start(now);
+    thump.stop(now + 0.1);
+  } catch {
+    // Sound is a nice-to-have; never let it break a click.
+  }
+}
+
+/** Key released: a lighter, higher "tick". */
+export function playKeyUp() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    noiseClick(ctx, now, 3800 * (0.95 + Math.random() * 0.1), 1.4, 0.13, 0.022);
+  } catch {
+    // Sound is a nice-to-have; never let it break a click.
+  }
+}
