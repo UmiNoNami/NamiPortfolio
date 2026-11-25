@@ -178,31 +178,15 @@ export default function PosterSeries() {
           })}
         </div>
 
-        <div className={styles.controls}>
-          <button type="button" className={styles.round} onClick={() => go(-1)} aria-label="Previous poster">←</button>
-          <div className={styles.caption} aria-live={playing ? "off" : "polite"}>
-            <span className={styles.count}>
-              {current.no} / {String(COUNT).padStart(2, "0")}
-            </span>
-            <strong>{current.title}</strong>
-            <span>
-              {current.style} — {current.event}
-            </span>
-          </div>
-          <button type="button" className={styles.round} onClick={() => go(1)} aria-label="Next poster">→</button>
-        </div>
-
-        <div className={styles.dots}>
-          {posters.map((p, i) => (
-            <button
-              key={p.no}
-              type="button"
-              className={styles.dot}
-              aria-label={`Show poster ${p.no}: ${p.title}`}
-              aria-current={i === active}
-              onClick={() => setActive(i)}
-            />
-          ))}
+        <div className={styles.caption} aria-live={playing ? "off" : "polite"}>
+          <span className={styles.count}>
+            {current.no} / {String(COUNT).padStart(2, "0")}
+          </span>
+          <strong>{current.title}</strong>
+          <span>
+            {current.style} — {current.event}
+          </span>
+          {/* Small pause control: required for content that moves on its own (WCAG 2.2.2). */}
           {!reduceMotion && (
             <button
               type="button"

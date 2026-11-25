@@ -21,20 +21,13 @@
 .card[data-front="true"]:hover .zoom, .card[data-front="true"]:focus-visible .zoom { opacity: 1; transform: none; }
 .card:focus-visible { outline: 3px solid #305ac0; outline-offset: 4px; }
 
-.controls { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 16px; max-width: 560px; margin: 10px auto 0; }
-.round { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px; border: 1px solid var(--glass-edge, #ffffffba); background: #ffffff40; color: inherit; font-size: 17px; cursor: pointer; transition: background 160ms, transform 160ms; }
-.round:hover { background: #ffffff80; transform: translateY(-1px); }
-.caption { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; min-height: 58px; justify-content: center; }
+.caption { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; min-height: 58px; justify-content: center; margin-top: 12px; }
 .caption strong { font-size: 17px; font-weight: 500; letter-spacing: -.02em; }
 .caption span { font-size: 11px; color: var(--glass-muted, #48616b); }
 .count { font-size: 9.5px !important; letter-spacing: .14em; }
 
-.dots { display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 10px; }
-.dot { width: 24px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
-.dot::after { content: ""; position: absolute; inset: 9px; border-radius: 999px; background: var(--glass-ink, #23383e); opacity: .25; transition: opacity 200ms, inset 200ms; }
-.dot[aria-current="true"]::after { opacity: .9; inset: 8px 4px; }
-.pause { margin-left: 10px; min-height: 30px; padding: 4px 10px; border: 1px solid var(--glass-edge, #ffffffba); border-radius: 999px; background: #ffffff30; color: var(--glass-muted, #48616b); font-size: 9px; letter-spacing: .12em; cursor: pointer; }
-.series :is(.round, .dot, .pause):focus-visible { outline: 3px solid #305ac0; outline-offset: 2px; }
+.pause { margin-top: 8px; min-height: 30px; padding: 4px 10px; border: 1px solid var(--glass-edge, #ffffffba); border-radius: 999px; background: #ffffff30; color: var(--glass-muted, #48616b); font-size: 9px; letter-spacing: .12em; cursor: pointer; }
+.pause:focus-visible { outline: 3px solid #305ac0; outline-offset: 2px; }
 
 /* Lightbox (portalled to <body>) */
 .lightbox { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 4vh 72px; background: #0d1a1fcc; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: fade 180ms ease-out; }
@@ -58,7 +51,6 @@
 @media (max-width: 700px) {
   .series { margin-top: 26px; padding-top: 22px; }
   .carousel { --card-w: min(58vw, 250px); --ring-radius: calc(var(--card-w) * 0.95); }
-  .controls { gap: 10px; }
   .caption strong { font-size: 15px; }
   .lightbox { padding: 64px 12px 76px; }
   .figure img { height: auto; width: 100%; max-height: calc(100vh - 170px); object-fit: contain; }
@@ -68,15 +60,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .zoom, .dot::after, .round { transition: none; }
+  .card, .zoom { transition: none; }
   .lightbox, .figure img { animation: none; }
 }
 :global([data-reduce-motion]) .card, :global([data-reduce-motion]) .zoom { transition: none; }
 :global([data-reduce-motion]) .lightbox, :global([data-reduce-motion]) .figure img { animation: none; }
 
 /* Theme hooks shared with the rest of the Projects panel */
-:global(.dark) .round, :global(.dark) .pause { background: #ffffff14; color: #dce5df; }
-:global(.dark) .dot::after { background: #dce5df; }
-:global([data-a11y-theme="high-contrast"]) .round, :global([data-a11y-theme="high-contrast"]) .pause { background: #111; border-color: #fff; color: #fff; }
-:global([data-a11y-theme="high-contrast"]) .dot::after { background: #fff; }
+:global(.dark) .pause { background: #ffffff14; color: #dce5df; }
+:global([data-a11y-theme="high-contrast"]) .pause { background: #111; border-color: #fff; color: #fff; }
 :global([data-text-size="large"]) :is(.blurb, .caption span, .kicker) { font-size: 1rem; }
