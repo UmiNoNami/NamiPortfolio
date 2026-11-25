@@ -1,0 +1,78 @@
+.series { margin-top: 34px; padding-top: 26px; border-top: 1px solid var(--glass-edge, #ffffffba); color: var(--glass-ink, #23383e); }
+
+.header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 8px; }
+.kicker { font-size: .58rem; letter-spacing: .12em; color: var(--glass-muted, #48616b); margin: 0 0 8px; }
+.header h2 { font-size: clamp(24px, 2.6vw, 36px); font-weight: 500; letter-spacing: -.045em; line-height: 1.1; margin: 0; }
+.header h2 em { font-style: normal; font-weight: 400; color: var(--glass-muted, #48616b); }
+.blurb { max-width: 42ch; margin: 0; font-size: 12.5px; line-height: 1.75; color: var(--glass-muted, #48616b); }
+
+/* Ring carousel */
+.carousel { --card-w: clamp(200px, 23vw, 300px); --ring-radius: calc(var(--card-w) * 1.32); position: relative; padding: 6px 0 4px; outline: none; }
+.stage { position: relative; height: calc(var(--card-w) * 1.414 + 40px); overflow: hidden; touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+.card { position: absolute; top: 50%; left: 50%; width: var(--card-w); aspect-ratio: 595 / 842; padding: 0; border: 0; border-radius: 6px; overflow: hidden; cursor: pointer;
+  box-shadow: 0 1px 0 #ffffff70 inset, 0 22px 40px -22px #15384499, 0 3px 8px #15384422;
+  transition: transform 850ms cubic-bezier(.22, 1, .36, 1), opacity 600ms ease, filter 600ms ease, box-shadow 400ms; will-change: transform; }
+.card img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+.card[data-front="true"] { box-shadow: 0 1px 0 #ffffff80 inset, 0 34px 60px -26px #153844cc, 0 6px 14px #1538442e; }
+.card[data-front="true"]:hover { box-shadow: 0 1px 0 #ffffff80 inset, 0 40px 70px -26px #153844dd, 0 8px 18px #15384436; }
+.zoom { position: absolute; right: 10px; bottom: 10px; padding: 6px 10px; border-radius: 999px; background: #0d1a1fb3; color: #fff; font-size: 10px; letter-spacing: .08em; opacity: 0; transform: translateY(4px); transition: opacity 200ms, transform 200ms; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.card[data-front="true"]:hover .zoom, .card[data-front="true"]:focus-visible .zoom { opacity: 1; transform: none; }
+.card:focus-visible { outline: 3px solid #305ac0; outline-offset: 4px; }
+
+.caption { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; min-height: 58px; justify-content: center; margin-top: 12px; }
+.caption strong { font-size: 17px; font-weight: 500; letter-spacing: -.02em; }
+.caption span { font-size: 11px; color: var(--glass-muted, #48616b); }
+.count { font-size: 9.5px !important; letter-spacing: .14em; }
+
+.pause { margin-top: 8px; min-height: 30px; padding: 4px 10px; border: 1px solid var(--glass-edge, #ffffffba); border-radius: 999px; background: #ffffff30; color: var(--glass-muted, #48616b); font-size: 9px; letter-spacing: .12em; cursor: pointer; }
+.pause:focus-visible { outline: 3px solid #305ac0; outline-offset: 2px; }
+
+/* Lightbox (portalled to <body>) */
+.lightbox { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 4vh 72px; background: #0d1a1fcc; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: fade 180ms ease-out; }
+.figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; max-height: 100%; }
+.figure img { display: block; height: min(80vh, calc((100vw - 160px) * 1.415)); width: auto; max-width: 100%; border-radius: 4px; box-shadow: 0 30px 60px -20px #000c; animation: rise 240ms cubic-bezier(.2, .8, .2, 1); }
+.figure figcaption { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px 14px; color: #e8eef0; font-size: 11px; letter-spacing: .06em; text-align: center; }
+.figure figcaption strong { font-size: 15px; font-weight: 500; letter-spacing: -.01em; }
+.figure figcaption span { opacity: .7; }
+.close, .nav { position: absolute; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; border: 1px solid #ffffff55; background: #ffffff1c; color: #fff; font-size: 20px; line-height: 1; cursor: pointer; transition: background 160ms; }
+.close:hover, .nav:hover { background: #ffffff38; }
+.close:focus-visible, .nav:focus-visible { outline: 2px solid #8fc7ff; outline-offset: 3px; }
+.close { top: 18px; right: 18px; font-size: 26px; }
+.nav { top: 50%; transform: translateY(-50%); }
+.prev { left: 16px; }
+.next { right: 16px; }
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+
+@media (max-width: 1000px) { .header { flex-direction: column; align-items: flex-start; gap: 10px; } }
+/* Tablets: more room, so bigger posters and a slightly tighter ring. */
+@media (min-width: 701px) and (max-width: 1100px) {
+  .carousel { --card-w: clamp(230px, 33vw, 320px); --ring-radius: calc(var(--card-w) * 1.22); }
+}
+@media (max-width: 700px) {
+  .series { margin-top: 26px; padding-top: 22px; }
+  .carousel { --card-w: min(52vw, 230px); --ring-radius: calc(var(--card-w) * 1.08); }
+  .stage { -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+  .blurb { font-size: 12px; }
+  .caption strong { font-size: 15px; }
+  .lightbox { padding: 64px 12px 76px; }
+  .figure img { height: auto; width: 100%; max-height: calc(100vh - 170px); object-fit: contain; }
+  .nav { top: auto; bottom: 16px; transform: none; }
+  .prev { left: calc(50% - 56px); }
+  .next { right: calc(50% - 56px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .zoom { transition: none; }
+  .lightbox, .figure img { animation: none; }
+}
+:global([data-reduce-motion]) .card, :global([data-reduce-motion]) .zoom { transition: none; }
+:global([data-reduce-motion]) .lightbox, :global([data-reduce-motion]) .figure img { animation: none; }
+
+/* Theme hooks shared with the rest of the Projects panel */
+:global(.dark) .pause { background: #ffffff14; color: #dce5df; }
+:global([data-a11y-theme="high-contrast"]) .pause { background: #111; border-color: #fff; color: #fff; }
+:global([data-text-size="large"]) :is(.blurb, .caption span, .kicker) { font-size: 1rem; }

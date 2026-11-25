@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { projects } from "@/data/projects";
 import styles from "./ProjectsPanel.module.css";
+import PosterSeries from "./PosterSeries";
 
 const ordered = ["knockknock", "pluto", "gear4music"].map(slug => projects.find(project => project.slug === slug)!);
 const galleries: Record<string, { src: string; label: string }[]> = {
@@ -52,5 +53,6 @@ export default function ProjectsPanel() {
   return <div className={styles.projects}>
     <div className={styles.toolbar}><div className={styles.filters} role="group" aria-label="Filter projects">{filters.map(item => <button type="button" key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><span>EXPLORE THE WORK</span></div>
     <div className={styles.grid}>{visible.map(project => <ProjectPreview key={project.slug} project={project} active={selected === project.slug} select={() => setActive(project.slug)} index={ordered.indexOf(project)} />)}</div>
+    {filter !== "Development" && <PosterSeries />}
   </div>;
 }

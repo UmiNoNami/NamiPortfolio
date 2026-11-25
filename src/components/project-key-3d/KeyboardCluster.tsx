@@ -6,6 +6,7 @@ import { Component, useCallback, useEffect, useRef, useState, type ReactNode } f
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { useAccessibility } from "@/lib/accessibility";
+import { playKeyDown, playKeyUp, warmUpKeySounds } from "@/lib/sound";
 import { CLUSTER_KEYS, CLUSTER_OUTLINES, type ClusterKeyId } from "./clusterConfig";
 import styles from "./KeyboardCluster.module.css";
 
@@ -34,10 +35,35 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
   const cancelled = useRef(false);
   const pointerStart = useRef({ x: 0, y: 0 });
   const timer = useRef<ReturnType<typeof setTimeout>>();
+  const releaseTimer = useRef<ReturnType<typeof setTimeout>>();
+  const pressedAt = useRef(0);
+  // Every press is held for a minimum time so the key visibly travels all the
+  // way down before springing back up — a quick click used to release before
+  // the cap had moved, so most keys looked like they never pressed.
+  const MIN_PRESS_MS = 130;
+  // The pressed key lives in a ref too: event handlers must see a press that
+  // React hasn't re-rendered yet, or a fast click reads a stale "nothing
+  // pressed" and releases the key instantly.
+  const pressedRef = useRef<ClusterKeyId | null>(null);
+  const setPress = (id: ClusterKeyId | null) => { pressedRef.current = id; setPressed(id); };
+  const press = (id: ClusterKeyId) => {
+    clearTimeout(releaseTimer.current);
+    pressedAt.current = performance.now();
+    setPress(id);
+    playKeyDown();
+  };
+  const releaseSoon = () => {
+    clearTimeout(releaseTimer.current);
+    const wait = Math.max(0, MIN_PRESS_MS - (performance.now() - pressedAt.current));
+    releaseTimer.current = setTimeout(() => { setPress(null); playKeyUp(); }, wait);
+  };
   const onReady = useCallback(() => setReady(true), []);
   const onError = useCallback(() => { setFailed(true); setReady(false); }, []);
 
   useEffect(() => {
+    // Touch devices have no hover to warm the audio up on, so do it shortly
+    // after load instead (the context stays suspended until the first tap).
+    const warm = window.matchMedia("(pointer: coarse)").matches ? setTimeout(warmUpKeySounds, 1200) : undefined;
     const media = window.matchMedia("(max-width: 700px), (pointer: coarse)");
     const resize = () => setCompact(media.matches);
     resize(); media.addEventListener("change", resize);
@@ -46,14 +72,15 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
     const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); });
     if (host.current) observer.observe(host.current);
     document.addEventListener("visibilitychange", update);
-    const release = () => { setPressed(null); pointer.current = { x: 0, y: 0 }; };
+    const release = () => { pressedRef.current = null; setPressed(null); pointer.current = { x: 0, y: 0 }; };
     window.addEventListener("blur", release);
-    return () => { observer.disconnect(); media.removeEventListener("change", resize); document.removeEventListener("visibilitychange", update); window.removeEventListener("blur", release); clearTimeout(timer.current); };
+    return () => { observer.disconnect(); media.removeEventListener("change", resize); document.removeEventListener("visibilitychange", update); window.removeEventListener("blur", release); clearTimeout(timer.current); clearTimeout(releaseTimer.current); clearTimeout(warm); };
   }, []);
 
   const activate = (id: ClusterKeyId) => {
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => router.push(`/${id}`, { scroll: false }), reduced ? 0 : 170);
+    // Navigate once the key has gone down and started back up.
+    timer.current = setTimeout(() => router.push(`/${id}`, { scroll: false }), reduced ? 0 : 240);
   };
 
   return <nav ref={host} className={styles.cluster} aria-label="Explore the portfolio" data-ready={ready}
@@ -61,7 +88,8 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
       if (event.pointerType !== "mouse" || reduced) return;
       const r = event.currentTarget.getBoundingClientRect();
       pointer.current = { x: (event.clientX - r.left) / r.width * 2 - 1, y: (event.clientY - r.top) / r.height * 2 - 1 };
-    }} onPointerLeave={() => { pointer.current = { x: 0, y: 0 }; }}>
+    }} onPointerLeave={() => { pointer.current = { x: 0, y: 0 }; }}
+    onPointerEnter={warmUpKeySounds} onFocus={warmUpKeySounds}>
     <Image className={styles.poster} src="/keyboard-cluster.png" alt="" fill priority unoptimized sizes="(max-width: 700px) 100vw, 780px" />
     <div className={styles.canvas} aria-hidden="true">
       {!failed && <SceneBoundary onError={onError}><Scene pressed={pressed} pointer={pointer} controls={controls} outlines={outlines}
@@ -79,24 +107,24 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
         // from under a held finger — without this, brief pointerleave events
         // caused by that drift were silently swallowing taps on mobile.
         try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
-        setPressed(key.id);
+        press(key.id);
       }}
       onPointerMove={event => {
-        if (cancelled.current || pressed !== key.id) return;
+        if (cancelled.current || pressedRef.current !== key.id) return;
         const dx = event.clientX - pointerStart.current.x;
         const dy = event.clientY - pointerStart.current.y;
-        if (Math.hypot(dx, dy) > 24) { cancelled.current = true; setPressed(null); }
+        if (Math.hypot(dx, dy) > 24) { cancelled.current = true; setPress(null); }
       }}
-      onPointerUp={event => { setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
-      onPointerLeave={() => setPressed(null)}
-      onPointerCancel={() => { cancelled.current = true; setPressed(null); }}
-      onBlur={() => setPressed(null)}
+      onPointerUp={event => { if (pressedRef.current === key.id && !cancelled.current) releaseSoon(); else setPress(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
+      onPointerLeave={() => { if (!cancelled.current && pressedRef.current === key.id) return; setPress(null); }}
+      onPointerCancel={() => { cancelled.current = true; setPress(null); }}
+      onBlur={() => { if (pressedRef.current === key.id) releaseSoon(); }}
       onKeyDown={event => {
         if (event.key !== "Enter" && event.key !== " ") return;
-        event.preventDefault(); if (!event.repeat) setPressed(key.id);
+        event.preventDefault(); if (!event.repeat) press(key.id);
       }} onKeyUp={event => {
-        if ((event.key === "Enter" || event.key === " ") && pressed === key.id) {
-          event.preventDefault(); setPressed(null); activate(key.id);
+        if ((event.key === "Enter" || event.key === " ") && pressedRef.current === key.id) {
+          event.preventDefault(); releaseSoon(); activate(key.id);
         }
       }} onClick={event => { if (event.detail === 0 || !cancelled.current) activate(key.id); }}>
       <span className={styles.srOnly}>{key.label}</span>

@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font families come from one Google Fonts <link> in layout.tsx. */
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-pixel: "Pixelify Sans", monospace;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-jakarta: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-dm: "DM Sans", system-ui, sans-serif;
+  --font-big-shoulders: "Big Shoulders Display", Impact, sans-serif;
+  --font-figtree: "Figtree", system-ui, sans-serif;
+  --font-dm-mono: "DM Mono", ui-monospace, monospace;
+}
+
 html {
   scroll-behavior: smooth;
   /* Nudges every rem-based type size (and spacing) up slightly, site-wide,

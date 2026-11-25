@@ -194,3 +194,77 @@ export function playLose() {
     // Sound is a nice-to-have; never let it break the game.
   }
 }
+
+// --- Keyboard key sounds (homepage 3D keys) --------------------------------
+// A real recorded button press, split into its two halves: /sounds/key-down.wav
+// (key going down) and /sounds/key-up.wav (key springing back). WAV rather than
+// MP3 because MP3 adds encoder padding at the start, which would make the
+// click lag behind the press. Both are ~15 KB and decoded once.
+const KEY_SOUNDS = { down: "/sounds/key-down.wav", up: "/sounds/key-up.wav" } as const;
+type KeySound = keyof typeof KEY_SOUNDS;
+const keyBuffers: Partial<Record<KeySound, AudioBuffer>> = {};
+let keyLoad: Promise<void> | null = null;
+
+function loadKeySounds(audio: AudioContext) {
+  if (!keyLoad) {
+    keyLoad = Promise.all(
+      (Object.keys(KEY_SOUNDS) as KeySound[]).map(async (name) => {
+        const res = await fetch(KEY_SOUNDS[name]);
+        keyBuffers[name] = await audio.decodeAudioData(await res.arrayBuffer());
+      }),
+    ).then(() => undefined).catch(() => { keyLoad = null; });
+  }
+  return keyLoad;
+}
+
+/** Create the audio context and fetch/decode the key sounds ahead of time
+ * (on first hover, or shortly after load on touch devices). Opening the audio
+ * device can block the page for a few hundred ms on some systems — doing it on
+ * the first press made that press stutter. The context starts suspended and is
+ * resumed by the first real press. */
+export function warmUpKeySounds() {
+  try {
+    if (typeof window === "undefined") return;
+    if (!ctx) {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      ctx = new AudioCtx();
+    }
+    void loadKeySounds(ctx);
+  } catch {
+    // Optional optimisation only.
+  }
+}
+
+function playKeySound(name: KeySound, level: number) {
+  try {
+    const audio = getAudioContext();
+    if (!audio) return;
+    const play = () => {
+      const buffer = keyBuffers[name];
+      if (!buffer) return;
+      const src = audio.createBufferSource();
+      src.buffer = buffer;
+      src.playbackRate.value = 0.98 + Math.random() * 0.04; // tiny variation between presses
+      const gain = audio.createGain();
+      gain.gain.value = level;
+      src.connect(gain);
+      gain.connect(audio.destination);
+      src.start();
+    };
+    if (keyBuffers[name]) play();
+    else void loadKeySounds(audio).then(play);
+  } catch {
+    // Sound is a nice-to-have; never let it break a click.
+  }
+}
+
+/** Key pressed down. */
+export function playKeyDown() {
+  playKeySound("down", 0.8);
+}
+
+/** Key released. */
+export function playKeyUp() {
+  playKeySound("up", 0.6);
+}
