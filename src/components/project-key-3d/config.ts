@@ -7,8 +7,8 @@ export const PROJECT_KEY = {
     idleYDegrees: 3,
     idlePeriod: 10,
     pointerDegrees: 1.6,
-    pressDepth: 0.07, // 8.5% of the cap's 0.82-unit visible height.
-    pressDownSeconds: 0.085,
+    pressDepth: 0.17, // ~20% of the cap's 0.82-unit visible height — deep enough to read from the camera angle.
+    pressDownSeconds: 0.06,
     pressUpSeconds: 0.145,
   },
   camera: { position: [4.2, 8.4, 9] as [number, number, number], fov: 29 },

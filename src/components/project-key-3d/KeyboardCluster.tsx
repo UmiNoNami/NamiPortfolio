@@ -35,6 +35,23 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
   const cancelled = useRef(false);
   const pointerStart = useRef({ x: 0, y: 0 });
   const timer = useRef<ReturnType<typeof setTimeout>>();
+  const releaseTimer = useRef<ReturnType<typeof setTimeout>>();
+  const pressedAt = useRef(0);
+  // Every press is held for a minimum time so the key visibly travels all the
+  // way down before springing back up — a quick click used to release before
+  // the cap had moved, so most keys looked like they never pressed.
+  const MIN_PRESS_MS = 130;
+  const press = (id: ClusterKeyId) => {
+    clearTimeout(releaseTimer.current);
+    pressedAt.current = performance.now();
+    setPressed(id);
+    playKeyDown();
+  };
+  const releaseSoon = () => {
+    clearTimeout(releaseTimer.current);
+    const wait = Math.max(0, MIN_PRESS_MS - (performance.now() - pressedAt.current));
+    releaseTimer.current = setTimeout(() => { setPressed(null); playKeyUp(); }, wait);
+  };
   const onReady = useCallback(() => setReady(true), []);
   const onError = useCallback(() => { setFailed(true); setReady(false); }, []);
 
@@ -49,12 +66,13 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
     document.addEventListener("visibilitychange", update);
     const release = () => { setPressed(null); pointer.current = { x: 0, y: 0 }; };
     window.addEventListener("blur", release);
-    return () => { observer.disconnect(); media.removeEventListener("change", resize); document.removeEventListener("visibilitychange", update); window.removeEventListener("blur", release); clearTimeout(timer.current); };
+    return () => { observer.disconnect(); media.removeEventListener("change", resize); document.removeEventListener("visibilitychange", update); window.removeEventListener("blur", release); clearTimeout(timer.current); clearTimeout(releaseTimer.current); };
   }, []);
 
   const activate = (id: ClusterKeyId) => {
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => router.push(`/${id}`, { scroll: false }), reduced ? 0 : 170);
+    // Navigate once the key has gone down and started back up.
+    timer.current = setTimeout(() => router.push(`/${id}`, { scroll: false }), reduced ? 0 : 240);
   };
 
   return <nav ref={host} className={styles.cluster} aria-label="Explore the portfolio" data-ready={ready}
@@ -80,8 +98,7 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
         // from under a held finger — without this, brief pointerleave events
         // caused by that drift were silently swallowing taps on mobile.
         try { event.currentTarget.setPointerCapture(event.pointerId); } catch {}
-        setPressed(key.id);
-        playKeyDown();
+        press(key.id);
       }}
       onPointerMove={event => {
         if (cancelled.current || pressed !== key.id) return;
@@ -89,16 +106,16 @@ export default function KeyboardCluster({ suspended = false }: { suspended?: boo
         const dy = event.clientY - pointerStart.current.y;
         if (Math.hypot(dx, dy) > 24) { cancelled.current = true; setPressed(null); }
       }}
-      onPointerUp={event => { if (pressed === key.id && !cancelled.current) playKeyUp(); setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
+      onPointerUp={event => { if (pressed === key.id && !cancelled.current) releaseSoon(); else setPressed(null); try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {} }}
       onPointerLeave={() => setPressed(null)}
       onPointerCancel={() => { cancelled.current = true; setPressed(null); }}
       onBlur={() => setPressed(null)}
       onKeyDown={event => {
         if (event.key !== "Enter" && event.key !== " ") return;
-        event.preventDefault(); if (!event.repeat) { setPressed(key.id); playKeyDown(); }
+        event.preventDefault(); if (!event.repeat) press(key.id);
       }} onKeyUp={event => {
         if ((event.key === "Enter" || event.key === " ") && pressed === key.id) {
-          event.preventDefault(); setPressed(null); playKeyUp(); activate(key.id);
+          event.preventDefault(); releaseSoon(); activate(key.id);
         }
       }} onClick={event => { if (event.detail === 0 || !cancelled.current) activate(key.id); }}>
       <span className={styles.srOnly}>{key.label}</span>
