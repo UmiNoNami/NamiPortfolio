@@ -59,7 +59,7 @@ function useReducedMotion() {
 export default function PosterSeries() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false); // user pressed pause
-  const [hovering, setHovering] = useState(false); // pointer/focus inside
+  const [keyboardFocus, setKeyboardFocus] = useState(false); // keyboard user is inside
   const [lightbox, setLightbox] = useState(false);
   const [mounted, setMounted] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -77,14 +77,13 @@ export default function PosterSeries() {
   }, []);
 
   // Autoplay: the next poster comes forward every few seconds.
-  const playing = !paused && !hovering && !lightbox && !reduceMotion;
+  const playing = !paused && !keyboardFocus && !lightbox && !reduceMotion;
   useEffect(() => {
     if (!playing) return;
-    const t = window.setInterval(() => {
-      if (!document.hidden) go(1);
-    }, AUTOPLAY_MS);
-    return () => window.clearInterval(t);
-  }, [playing, go]);
+    // Restarts after every change, so a manual click gets a full turn too.
+    const t = window.setTimeout(() => go(1), AUTOPLAY_MS);
+    return () => window.clearTimeout(t);
+  }, [playing, go, active]);
 
   // Lightbox keyboard + focus handling.
   useEffect(() => {
@@ -126,11 +125,13 @@ export default function PosterSeries() {
         role="region"
         aria-roledescription="carousel"
         aria-label="Poster series"
-        onPointerEnter={(e) => e.pointerType === "mouse" && setHovering(true)}
-        onPointerLeave={() => setHovering(false)}
-        onFocus={() => setHovering(true)}
+        // Keeps turning on its own, even under the mouse or after a click; it only
+        // holds still for keyboard users (so focus doesn't jump) or on Pause.
+        onFocus={(e) => {
+          if ((e.target as HTMLElement).matches(":focus-visible")) setKeyboardFocus(true);
+        }}
         onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovering(false);
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setKeyboardFocus(false);
         }}
         onKeyDown={(e) => {
           if (lightbox) return;
