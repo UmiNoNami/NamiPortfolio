@@ -212,18 +212,18 @@ type ClickSpec = {
 };
 
 const PRESS: ClickSpec = {
-  bounces: [[0, 1], [0.0045, 0.38], [0.009, 0.12]],
-  resonances: [[1900, 0.006, 0.28], [3300, 0.004, 0.3], [5400, 0.0022, 0.22]],
-  noiseDecay: 0.0011,
-  body: 0.35,
-  length: 0.06,
+  bounces: [[0, 1], [0.005, 0.45], [0.0095, 0.15]],
+  resonances: [[1700, 0.012, 0.32], [3000, 0.008, 0.34], [5000, 0.004, 0.22]],
+  noiseDecay: 0.0022,
+  body: 0.6,
+  length: 0.09,
 };
 const RELEASE: ClickSpec = {
-  bounces: [[0, 1], [0.0035, 0.28]],
-  resonances: [[2300, 0.004, 0.22], [3900, 0.003, 0.28], [6200, 0.0018, 0.2]],
-  noiseDecay: 0.0008,
-  body: 0.08,
-  length: 0.04,
+  bounces: [[0, 1], [0.004, 0.32]],
+  resonances: [[2200, 0.008, 0.26], [3700, 0.006, 0.3], [5900, 0.003, 0.2]],
+  noiseDecay: 0.0016,
+  body: 0.18,
+  length: 0.06,
 };
 
 function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
@@ -248,7 +248,7 @@ function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
       for (const [f, d, ra] of spec.resonances) ring += ra * Math.sin(2 * Math.PI * f * detune * dt) * Math.exp(-dt / d);
       v += a * (hp * Math.exp(-dt / spec.noiseDecay) + ring);
     }
-    v += spec.body * lp * 4 * Math.exp(-t / 0.014);
+    v += spec.body * lp * 5 * Math.exp(-t / 0.022);
     out[i] = v;
   }
   // Tiny fade-in/out to avoid DC clicks, then normalise.
@@ -263,15 +263,40 @@ function renderClick(ctx: AudioContext, spec: ClickSpec): AudioBuffer {
 }
 
 const clickBank = new Map<ClickSpec, AudioBuffer[]>();
+function bankFor(ctx: AudioContext, spec: ClickSpec) {
+  let bank = clickBank.get(spec);
+  if (!bank || bank[0].sampleRate !== ctx.sampleRate) {
+    bank = [0, 1, 2, 3].map(() => renderClick(ctx, spec));
+    clickBank.set(spec, bank);
+  }
+  return bank;
+}
+
+/** Create the audio context and render the click sounds ahead of time (e.g.
+ * when the pointer first moves over the keys). Opening the audio device can
+ * block the page for a few hundred ms on some systems — doing it on the first
+ * press made that press stutter. The context starts suspended and is resumed
+ * by the first real press. */
+export function warmUpKeySounds() {
+  try {
+    if (typeof window === "undefined") return;
+    if (!ctx) {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      ctx = new AudioCtx();
+    }
+    bankFor(ctx, PRESS);
+    bankFor(ctx, RELEASE);
+  } catch {
+    // Optional optimisation only.
+  }
+}
+
 function playSpec(spec: ClickSpec, level: number) {
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
-    let bank = clickBank.get(spec);
-    if (!bank || bank[0].sampleRate !== ctx.sampleRate) {
-      bank = [0, 1, 2, 3].map(() => renderClick(ctx, spec));
-      clickBank.set(spec, bank);
-    }
+    const bank = bankFor(ctx, spec);
     const src = ctx.createBufferSource();
     src.buffer = bank[Math.floor(Math.random() * bank.length)];
     src.playbackRate.value = 0.97 + Math.random() * 0.06;
@@ -287,10 +312,10 @@ function playSpec(spec: ClickSpec, level: number) {
 
 /** Key pressed down: crisp click with a little thock. */
 export function playKeyDown() {
-  playSpec(PRESS, 0.5);
+  playSpec(PRESS, 0.85);
 }
 
 /** Key released: lighter, higher tick. */
 export function playKeyUp() {
-  playSpec(RELEASE, 0.3);
+  playSpec(RELEASE, 0.55);
 }
