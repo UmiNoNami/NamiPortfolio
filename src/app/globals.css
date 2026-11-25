@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Playfair Display comes from a Google Fonts <link> in layout.tsx. */
+:root {
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
 html {
   scroll-behavior: smooth;
   /* Nudges every rem-based type size (and spacing) up slightly, site-wide,

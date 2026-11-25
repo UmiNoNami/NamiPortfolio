@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import {
   Inter,
-  Playfair_Display,
   Pixelify_Sans,
   Space_Mono,
   Plus_Jakarta_Sans,
@@ -32,12 +31,11 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  style: ["italic", "normal"],
-  variable: "--font-serif",
-});
+// Playfair Display is loaded with a plain Google Fonts <link> in <head> (see
+// below) rather than next/font: next/font in Next 14.2.5 crashes at build time
+// when Google serves this family from an extension-less file URL
+// ("Cannot read properties of null (reading '1')"). --font-serif is set in
+// globals.css.
 
 // Kept loaded (unused on the current homepage) so the still-linked retro
 // desktop components elsewhere in the codebase don't break if reintroduced.
@@ -202,6 +200,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap"
+        />
         <Script id="a11y-init" strategy="beforeInteractive">
           {A11Y_INIT_SCRIPT}
         </Script>
@@ -212,7 +217,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} ${pixelify.variable} ${spaceMono.variable} ${plusJakarta.variable} ${dmSans.variable} ${bigShoulders.variable} ${figtree.variable} ${dmMono.variable} bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
+        className={`${inter.variable} ${pixelify.variable} ${spaceMono.variable} ${plusJakarta.variable} ${dmSans.variable} ${bigShoulders.variable} ${figtree.variable} ${dmMono.variable} bg-canvas font-sans text-navy antialiased transition-colors duration-300 dark:bg-midnight dark:text-cream`}
       >
         <AccessibilityProvider>
           <AboutModalProvider>
